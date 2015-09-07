@@ -8,6 +8,8 @@ int main()
 {
     cvNamedWindow("Camera_Output", 1);    //Create window
     CvCapture* capture = cvCaptureFromCAM(CV_CAP_ANY);  //Capture using any camera connected to your system
+    capture.set(CV_CAP_PROP_FRAME_WIDTH,320);
+    capture.set(CV_CAP_PROP_FRAME_HEIGHT,240);
     while(1){ //Create infinte loop for live streaming
  
         IplImage* frame = cvQueryFrame(capture); //Create image frames from capture
