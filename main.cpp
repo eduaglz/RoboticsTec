@@ -3,23 +3,25 @@
 #include <highgui.h>
  
 using namespace std;
+using namespace cv;
 char key;
 int main()
 {
     cvNamedWindow("Camera_Output", 1);    //Create window
-    CvCapture* capture = cvCaptureFromCAM(CV_CAP_ANY);  //Capture using any camera connected to your system
-    capture.set(CV_CAP_PROP_FRAME_WIDTH,320);
-    capture.set(CV_CAP_PROP_FRAME_HEIGHT,240);
+    VideoCapture camera(0);
+     if(!camera.isOpened())
+      {
+        cerr << "ERROR: Could not open camera" << endl;
+        return 1;
+      }
     while(1){ //Create infinte loop for live streaming
- 
-        IplImage* frame = cvQueryFrame(capture); //Create image frames from capture
-        cvShowImage("Camera_Output", frame);   //Show image frames on created window
+        Mat frame;
+        camera >> frame;
+        imshow("Camera_Output", frame);   //Show image frames on created window
         key = cvWaitKey(10);     //Capture Keyboard stroke
         if (char(key) == 27){
             break;      //If you hit ESC key loop will break.
         }
     }
-    cvReleaseCapture(&capture); //Release capture.
-    cvDestroyWindow("Camera_Output"); //Destroy Window
     return 0;
 }
