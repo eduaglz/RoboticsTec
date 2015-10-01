@@ -1,4 +1,5 @@
 #include <iostream>
+
 #include <cv.h>
 #include <highgui.h>
 #include <list>
@@ -8,6 +9,11 @@ using namespace std;
 using namespace cv;
 char key;
 Mat frame;
+bool firstFrame = true;
+bool oilRigInFirstFrame = false;
+bool oilRigInSecondFrame = false;
+
+int sMax = 50, vMax;
 
 struct Features
 {
@@ -134,19 +140,17 @@ Features fillRegion(Mat &src, Mat &dst, Point start)
     float rad = atan2(2*MU11,MU20-MU02)/2;
     features.F1 = N20 + N02;
     features.F2 = ((N20 - N02)*(N20 - N02)) + (4*(N11*N11));
-    printf( "F1: %f F2: %f\n", features.F1, features.F2 );
-    if(features.F1 > 0.160 && features.F1 < 0.195 && features.F2 > 0.002 && features.F2 < 0.007)
-    	cout << "Flama" << endl;
-    else
-    	cout << "Nada" << endl;
+    // printf( "F1: %f F2: %f\n", features.F1, features.F2 );
+
     return features;
 }
 
-void getShapes(Mat &img, Mat &out)
+bool getShapes(Mat &img, Mat &out)
 {
 	short nRows = img.rows;
 	short nCols = img.cols;
 	int row,col;
+	bool found = false;
 	// printf("Creando mat temporal de %dx%d\n",nRows,nCols);
 	// out = Mat(img.rows, img.cols, Scalar(0,0,0));
 	// Iterate all elements to find shapes in the image
@@ -162,10 +166,22 @@ void getShapes(Mat &img, Mat &out)
 			{
 				// printf("Punto encontrado en (%d,%d)\n",row,col);
 				Features f = fillRegion(img, out, p);
+			    found |= (f.F1 > 0.160 && f.F1 < 0.195 && f.F2 > 0.002 && f.F2 < 0.007);
+			   	//printf( "F1: %f F2: %f\n", f.F1, f.F2 );
 				// printf("%s: %d\n", "Region found with area",f.M00);
 			}
 		}
 	}
+
+	if(found)
+		cout << "OilRig Found" << endl;
+	else
+		cout << "Nothing Found" << endl;
+	return found;
+}
+
+void on_trackbar(int, void*){
+
 }
 
 int main()
@@ -173,6 +189,9 @@ int main()
     cvNamedWindow("Original", 1);    //Create window
     cvNamedWindow("Threshold", 1);
     cvNamedWindow("Segment", 1);
+
+    createTrackbar("S Max", "Segment", &sMax, 180, on_trackbar);
+    createTrackbar("V Max", "Segment", &vMax, 100, on_trackbar);
 
 
 	setMouseCallback("Original", mouseCallback);
@@ -186,20 +205,47 @@ int main()
 		return 1;
 	}
 
+	int oilRigFound;
+
     while(1){ 
     	// Create infinte loop for live streaming
 		Mat threshold(240,320,CV_8UC1,255);
 		camera >> frame;
 	    cvtColor(frame, frame, CV_RGB2HSV);
-		inRange(frame,Scalar(0,0,0), Scalar(179,100,50), threshold);
+		inRange(frame,Scalar(0,0,0), Scalar(179,sMax,vMax), threshold);
 		erode(threshold, threshold, Mat());
 		dilate(threshold, threshold, Mat());
 		Mat out( 240, 320, CV_8UC3, Scalar(0,0,0));
-		getShapes(threshold, out);
+		oilRigFound = getShapes(threshold, out);
 		imshow("Threshold", threshold);
 		imshow("Segment", out);   // Show image frames on created window
 	    imshow("Original", frame);
 		key = cvWaitKey(10);     // Capture Keyboard stroke
+		switch(char(key)){
+			case 'i':
+				if(firstFrame){
+					oilRigInFirstFrame = oilRigFound;
+					firstFrame = false;
+				}else{
+					oilRigInSecondFrame = oilRigFound;
+					firstFrame = true;
+
+					if(oilRigInFirstFrame && !oilRigInSecondFrame)
+					{
+						cout << "OilRig 1 prendido" << endl;
+					}else if(oilRigInFirstFrame && oilRigInSecondFrame){
+						cout << "OilRig 2 prendido" << endl;
+					}else if(!oilRigInFirstFrame && oilRigInSecondFrame){
+						cout << "OilRig 3 prendido" << endl;
+					}else{
+						cout << "Error de lectura" << endl;
+					}
+				}
+
+				break;
+			default:
+				break;
+		}
         if (char(key) == 27){
             break;      // If you hit ESC key loop will break.
         }
