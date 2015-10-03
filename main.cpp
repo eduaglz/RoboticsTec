@@ -1,8 +1,9 @@
 #include <iostream>
-
+#include <fstream>
 #include <cv.h>
 #include <highgui.h>
 #include <list>
+#include "floatfann.h"
  
 
 using namespace std;
@@ -12,8 +13,9 @@ Mat frame;
 bool firstFrame = true;
 bool oilRigInFirstFrame = false;
 bool oilRigInSecondFrame = false;
+Vec3b colores [10];
 
-int sMax = 50, vMax;
+int sMax = 180, vMax = 130;
 
 struct Features
 {
@@ -29,6 +31,19 @@ struct Features
 	 Cy;
 };
 
+enum Figures{
+    NONE,
+    OIL_RIG,
+    TRIANGLE,
+    CIRCLE,
+    RECTANGLE
+};
+
+int a,b,c,d,e = 0;
+
+fann_type *result;
+fann_type input[2];
+struct fann *ann;
 
 void mouseCallback(int event, int x, int y, int flags, void* param)
 {
@@ -69,7 +84,7 @@ Vec3b getRandomColor()
     return Vec3b(rand()%255,rand()%255,rand()%255);
 }
 
-Features fillRegion(Mat &src, Mat &dst, Point start)
+Features fillRegion(Mat &src, Mat &dst, Point start, Vec3b color)
 {
     int size = 0;
     list<Point> cadena;
@@ -77,7 +92,6 @@ Features fillRegion(Mat &src, Mat &dst, Point start)
     Features features;
     features.M00 = features. M10 = features.M01 = 0;
     features.M20 = features.M02 = features.M11 = 0;
-    Vec3b color = getRandomColor();
     //cout << "Iniciando fillRegion" << endl;
 
     while(!cadena.empty())  
@@ -140,17 +154,17 @@ Features fillRegion(Mat &src, Mat &dst, Point start)
     float rad = atan2(2*MU11,MU20-MU02)/2;
     features.F1 = N20 + N02;
     features.F2 = ((N20 - N02)*(N20 - N02)) + (4*(N11*N11));
-    // printf( "F1: %f F2: %f\n", features.F1, features.F2 );
-
+    //cout << "Finishing fillRegion" << endl;
     return features;
 }
 
-bool getShapes(Mat &img, Mat &out)
+list<Features> getShapes(Mat &img, Mat &out, int minSize = 2000)
 {
 	short nRows = img.rows;
 	short nCols = img.cols;
 	int row,col;
 	bool found = false;
+    list<Features> shapes;
 	// printf("Creando mat temporal de %dx%d\n",nRows,nCols);
 	// out = Mat(img.rows, img.cols, Scalar(0,0,0));
 	// Iterate all elements to find shapes in the image
@@ -165,38 +179,118 @@ bool getShapes(Mat &img, Mat &out)
 			if( img.at<uchar>(row,col) != 0 && out.at<Vec3b>(row,col) == Vec3b(0,0,0) )
 			{
 				// printf("Punto encontrado en (%d,%d)\n",row,col);
-				Features f = fillRegion(img, out, p);
-			    found |= (f.F1 > 0.160 && f.F1 < 0.195 && f.F2 > 0.002 && f.F2 < 0.007);
-			   	//printf( "F1: %f F2: %f\n", f.F1, f.F2 );
-				// printf("%s: %d\n", "Region found with area",f.M00);
+				Features f = fillRegion(img, out, p, colores[shapes.size()%10]);
+                if(f.M00 >= minSize)
+                    shapes.push_back(f);
 			}
 		}
 	}
+    //cout << "Finishing getShapes" << endl;
+	return shapes;
+}
 
-	if(found)
-		cout << "OilRig Found" << endl;
-	else
-		cout << "Nothing Found" << endl;
-	return found;
+Figures detectShape(const Features &feature)
+{
+    input[0] = feature.F1;
+    input[1] = feature.F2;
+    result = fann_run(ann, input);
+    int max = result[0];
+    for(int i = 1; i < 5; i++)
+    {
+        if(result[i] > result[max])
+            max = i;
+    }
+
+    printf("%f %f %f %f %f\n",result[0],result[1],result[2],result[3],result[4]);
+    
+    switch(max)
+    {
+        case 0:
+            cout << "NONE detectado" << endl;
+            break;
+        case 1:
+            cout << "OIL_RIG detectado" << endl;
+            break;
+        case 2:
+            cout << "TRIANGLE detectado" << endl;
+            break;
+        case 3:
+            cout << "CIRCLE detectado" << endl;
+            break;
+        case 4:
+            cout << "RECTANGLE detectado" << endl;
+            break;
+        default:
+            break;
+    }
+
+    //printf("M00: %f F1: %f F2: %f Cx: %f Cy: %f\n",feature.M00, feature.F1, feature.F2, feature.Cx, feature.Cy);
+    /*
+     float M00,
+     M01,
+     M10,
+     M11,
+     M02,
+     M20,
+     F1,
+     F2,
+     Cx,
+     Cy;
+    */
+
+
 }
 
 void on_trackbar(int, void*){
 
 }
 
+void fillCollors(){
+    for(int i=0; i < 10; i++){
+        colores[i] = getRandomColor();
+    }
+}
+
+void initFannFIle(ofstream &file){
+    file.open("trainingData.data");
+    //file << "0 2 5"<< endl;
+}
+
+void printToFannFile(ofstream &file, Features feature, Figures figure){
+        file << feature.F1 << " " << feature.F2 << endl;
+        switch(figure){
+            case NONE:
+                file << "1 0 0 0 0";
+                break;
+            case OIL_RIG:
+                file << "0 1 0 0 0";
+                break;
+            case TRIANGLE:
+                file << "0 0 1 0 0";
+                break;
+            case CIRCLE:
+                file << "0 0 0 1 0";
+                break;
+            case RECTANGLE:
+                file << "0 0 0 0 1";
+                break;
+        }
+        file << endl;
+}
+
 int main()
 {
+    ann = fann_create_from_file("robotics.net");
     cvNamedWindow("Original", 1);    //Create window
     cvNamedWindow("Threshold", 1);
     cvNamedWindow("Segment", 1);
 
     createTrackbar("S Max", "Segment", &sMax, 180, on_trackbar);
-    createTrackbar("V Max", "Segment", &vMax, 100, on_trackbar);
-
+    createTrackbar("V Max", "Segment", &vMax, 180, on_trackbar);
 
 	setMouseCallback("Original", mouseCallback);
 
-	VideoCapture camera(0);
+	VideoCapture camera(1);
     camera.set(CV_CAP_PROP_FRAME_WIDTH,320);
     camera.set(CV_CAP_PROP_FRAME_HEIGHT,240);
 
@@ -204,9 +298,13 @@ int main()
 		cerr << "ERROR: Could not open camera" << endl;
 		return 1;
 	}
-
+    fillCollors();
 	int oilRigFound;
+    list<Features> shapes;
+    Features firstShape;
 
+    ofstream fannFile;
+    initFannFIle(fannFile);
     while(1){ 
     	// Create infinte loop for live streaming
 		Mat threshold(240,320,CV_8UC1,255);
@@ -216,9 +314,19 @@ int main()
 		erode(threshold, threshold, Mat());
 		dilate(threshold, threshold, Mat());
 		Mat out( 240, 320, CV_8UC3, Scalar(0,0,0));
-		oilRigFound = getShapes(threshold, out);
+        shapes = getShapes(threshold, out);
+        while(!shapes.empty())
+        {
+            Features f = shapes.front();
+            firstShape = f;
+            oilRigFound |= detectShape(f) == OIL_RIG;
+            shapes.pop_front();
+        }
+        //cout << "Shapes found" <<endl;
+		//oilRigFound = getShapes(threshold, out);
 		imshow("Threshold", threshold);
 		imshow("Segment", out);   // Show image frames on created window
+        //cout << "Mandando a pantalla" <<endl;
 	    imshow("Original", frame);
 		key = cvWaitKey(10);     // Capture Keyboard stroke
 		switch(char(key)){
@@ -243,13 +351,47 @@ int main()
 				}
 
 				break;
+            case 'q':
+                printf("M00: %f F1: %f F2: %f Cx: %f Cy: %f\n",firstShape.M00, firstShape.F1, firstShape.F2, firstShape.Cx, firstShape.Cy);
+                break;
+            case 'n':
+                printToFannFile(fannFile, firstShape, NONE);
+                a++;
+                printf("%d NONE recorded\n",a);
+                break;
+            case 'o':
+                printToFannFile(fannFile, firstShape, OIL_RIG);
+                b++;
+                printf("%d OIL_RIG recorded\n",b);
+                break;
+            case 't':
+                printToFannFile(fannFile, firstShape, TRIANGLE);
+                c++;
+                printf("%d TRIANGLE recorded\n",c);
+                break;
+            case 'r':
+                printToFannFile(fannFile, firstShape, RECTANGLE);
+                d++;
+                printf("%d RECTANGLE recorded\n",d);
+                break;
+            case 'c':
+                printToFannFile(fannFile, firstShape, CIRCLE);
+                e++;
+                printf("%d CIRCLE recorded\n",e);
+                break;
+            case 'e':
+                fannFile.close();
 			default:
 				break;
 		}
+
         if (char(key) == 27){
             break;      // If you hit ESC key loop will break.
         }
+        //cout << "Antes de hacer release"<<endl;
+        out.refcount = 0;
         out.release();
+        //cout << "Finishing loop" <<endl;
     }
 
     return 0;

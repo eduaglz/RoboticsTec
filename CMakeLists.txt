@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 project( Robotics )
 find_package( OpenCV REQUIRED )
+find_library(M_LIB m)
 add_executable( main main.cpp )
-target_link_libraries( main ${OpenCV_LIBS} )
+target_link_libraries( main ${OpenCV_LIBS} fann ${M_LIB})
