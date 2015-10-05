@@ -15,7 +15,7 @@ bool oilRigInFirstFrame = false;
 bool oilRigInSecondFrame = false;
 Vec3b colores [10];
 
-int sMax = 180, vMax = 130;
+int sMax = 180, vMax = 0;
 
 struct Features
 {
@@ -290,7 +290,7 @@ int main()
 
 	setMouseCallback("Original", mouseCallback);
 
-	VideoCapture camera(1);
+	VideoCapture camera(0);
     camera.set(CV_CAP_PROP_FRAME_WIDTH,320);
     camera.set(CV_CAP_PROP_FRAME_HEIGHT,240);
 
@@ -306,6 +306,7 @@ int main()
     ofstream fannFile;
     initFannFIle(fannFile);
     while(1){ 
+	cout << "Iniciando Loop" << endl;
     	// Create infinte loop for live streaming
 		Mat threshold(240,320,CV_8UC1,255);
 		camera >> frame;
@@ -322,11 +323,11 @@ int main()
             oilRigFound |= detectShape(f) == OIL_RIG;
             shapes.pop_front();
         }
-        //cout << "Shapes found" <<endl;
+        cout << "Shapes found" <<endl;
 		//oilRigFound = getShapes(threshold, out);
 		imshow("Threshold", threshold);
 		imshow("Segment", out);   // Show image frames on created window
-        //cout << "Mandando a pantalla" <<endl;
+        cout << "Mandando a pantalla" <<endl;
 	    imshow("Original", frame);
 		key = cvWaitKey(10);     // Capture Keyboard stroke
 		switch(char(key)){
@@ -388,10 +389,10 @@ int main()
         if (char(key) == 27){
             break;      // If you hit ESC key loop will break.
         }
-        //cout << "Antes de hacer release"<<endl;
+        cout << "Antes de hacer release"<<endl;
         out.refcount = 0;
         out.release();
-        //cout << "Finishing loop" <<endl;
+        cout << "Finishing loop" <<endl;
     }
 
     return 0;
