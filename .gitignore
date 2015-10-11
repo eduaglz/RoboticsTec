@@ -26,4 +26,7 @@
 *.exe
 *.out
 *.app
-build/
+Vision/build/
+
+/Control/Robotics/Debug
+/Control/Robotics/Release
