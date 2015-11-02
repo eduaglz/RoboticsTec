@@ -4,20 +4,41 @@
  * Created: 9/20/2015 11:09:14 PM
  *  Author: Eduardo
  */ 
-#define F_CPU 16000000
-
+#include "Arduino.h"
+#include "Wire.h"
+#include "Headers/usart.h"
+#include <HardwareSerial.cpp>
 #include <avr/io.h>
 #include <util/delay.h>
-#include "Headers/Wheel.h"
+//#include "Headers/Wheel.h"
 #include "Headers/_cplusplus.h"
-#include "Headers/Robot.h"
+//#include "Headers/Robot.h"
 
 
-
+  int x = 9999;
+  byte xH, xL;
 int main(void)
 {
-	Robot *r = new Robot();
-	Wheel a(TIMER_1,CHANNEL_A,30,31);
+	
+	USART_Send_string("1\n");
+	Serial.begin(9600);
+	USART_Init(MYUBRR);
+	  //Serial.println(x);
+	Serial.println("Inicianco configuracion");
+	Wire.beginTransmission(0x3C);
+	USART_Send_string("2\n");
+	Wire.write(0x02);
+	
+	USART_Send_string("3\n");
+	Wire.write(0x00);
+	Wire.endTransmission();
+	USART_Send_string("4\n");
+	USART_Send_string("5\n");
+	Wire.beginTransmission(0x3C);
+	Wire.write(0x03);
+	Wire.endTransmission();
+	//Robot *r = new Robot();
+	//Wheel a(TIMER_1,CHANNEL_A,30,31);
 	//int dutyCyle = 10;
 	//PWM a(TIMER_1, CHANNEL_A, 50, 10,8);
 	//PWM b(TIMER_1, CHANNEL_B, 50, 20,8);
@@ -39,13 +60,43 @@ int main(void)
 	//bool t2 = TCCR1A == TCCR3A;
 	//bool t3 = TCCR2B == TCCR3B;
 	//a.Forward(90);
+	//int speed = 30;
+	//bool up = true;
+	//Serial.println("Iniciando loop");
+	USART_Send_string("Iniciando Loop");
     while(1)
     {
-		r->StateMachine->Update();
-		//a.Forward(50);
-		//_delay_ms(2000);
+		  x=0;
+		  Wire.requestFrom(0x3D, 2);
+		  xH = Wire.read();
+		  //Serial.println(xH);
+		  xL = Wire.read();
+		  //Serial.println(xL);
+		  x = (xH<<8)|xL;
+		  USART_Send_int(x);
+		  //Serial.println(x);
+		_delay_ms(100);/*
+		r->Move(FORWARD,100);
+		_delay_ms(2000);
+		r->Stop();
+		_delay_ms(500);
+		r->Move(BACKWARD,100);
+		_delay_ms(2000);
+		r->Stop();
+		_delay_ms(500);
+		r->Move(LEFT,100);
+		_delay_ms(2000);
+		r->Stop();
+		_delay_ms(500);
+		r->Move(RIGHT,100);
+		_delay_ms(2000);
+		r->Stop();
+		_delay_ms(500);
+		//r->StateMachine->Update();
+		
+		//_delay_ms(10000);
 		//a.Backward(50);
-		//_delay_ms(2000);
+		//_delay_ms(10000);
 		//a.Stop();
 		//_delay_ms(2000);
 		//dutyCyle++;
@@ -55,6 +106,6 @@ int main(void)
 		//}
 		//a.SetDutyCycle(dutyCyle);
 		//_delay_ms(100);
-        //TODO:: Please write your application code 
+        //TODO:: Please write your application code */
     }
 }

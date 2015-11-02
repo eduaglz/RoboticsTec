@@ -63,10 +63,20 @@
         <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
         <avrgcc.compiler.symbols.DefSymbols>
           <ListValues>
+            <Value>F_CPU=16000000L</Value>
             <Value>NDEBUG</Value>
           </ListValues>
         </avrgcc.compiler.symbols.DefSymbols>
+        <avrgcc.compiler.directories.IncludePaths>
+          <ListValues>
+            <Value>C:\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino</Value>
+            <Value>C:\Program Files (x86)\Arduino\hardware\arduino\avr\variants\standard</Value>
+            <Value>C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\SoftwareSerial</Value>
+            <Value>C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\Wire</Value>
+          </ListValues>
+        </avrgcc.compiler.directories.IncludePaths>
         <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
+        <avrgcc.compiler.optimization.OtherFlags>-fdata-sections</avrgcc.compiler.optimization.OtherFlags>
         <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
         <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
         <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
@@ -74,18 +84,36 @@
         <avrgcccpp.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcccpp.compiler.general.ChangeDefaultBitFieldUnsigned>
         <avrgcccpp.compiler.symbols.DefSymbols>
           <ListValues>
+            <Value>F_CPU=16000000L</Value>
+            <Value>ARDUINO=165</Value>
             <Value>NDEBUG</Value>
           </ListValues>
         </avrgcccpp.compiler.symbols.DefSymbols>
+        <avrgcccpp.compiler.directories.IncludePaths>
+          <ListValues>
+            <Value>C:\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino</Value>
+            <Value>C:\Program Files (x86)\Arduino\hardware\arduino\avr\variants\standard</Value>
+            <Value>C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\SoftwareSerial</Value>
+            <Value>C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\Wire</Value>
+            <Value>C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\Wire\utility</Value>
+          </ListValues>
+        </avrgcccpp.compiler.directories.IncludePaths>
         <avrgcccpp.compiler.optimization.level>Optimize for size (-Os)</avrgcccpp.compiler.optimization.level>
+        <avrgcccpp.compiler.optimization.OtherFlags>-fdata-sections</avrgcccpp.compiler.optimization.OtherFlags>
         <avrgcccpp.compiler.optimization.PackStructureMembers>True</avrgcccpp.compiler.optimization.PackStructureMembers>
         <avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>
         <avrgcccpp.compiler.warnings.AllWarnings>True</avrgcccpp.compiler.warnings.AllWarnings>
         <avrgcccpp.linker.libraries.Libraries>
           <ListValues>
             <Value>libm</Value>
+            <Value>libcore.a</Value>
           </ListValues>
         </avrgcccpp.linker.libraries.Libraries>
+        <avrgcccpp.linker.libraries.LibrarySearchPaths>
+          <ListValues>
+            <Value>D:\Users\Eduardo\Documents\Atmel Studio\6.2\arduinoCore</Value>
+          </ListValues>
+        </avrgcccpp.linker.libraries.LibrarySearchPaths>
       </AvrGccCpp>
     </ToolchainSettings>
   </PropertyGroup>
@@ -102,10 +130,20 @@
   <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
   <avrgcc.compiler.symbols.DefSymbols>
     <ListValues>
+      <Value>F_CPU=16000000L</Value>
       <Value>DEBUG</Value>
     </ListValues>
   </avrgcc.compiler.symbols.DefSymbols>
-  <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
+  <avrgcc.compiler.directories.IncludePaths>
+    <ListValues>
+      <Value>C:\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino</Value>
+      <Value>C:\Program Files (x86)\Arduino\hardware\arduino\avr\variants\standard</Value>
+      <Value>C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\SoftwareSerial</Value>
+      <Value>C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\Wire</Value>
+    </ListValues>
+  </avrgcc.compiler.directories.IncludePaths>
+  <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
+  <avrgcc.compiler.optimization.OtherFlags>-fdata-sections</avrgcc.compiler.optimization.OtherFlags>
   <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
   <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
   <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
@@ -114,9 +152,20 @@
   <avrgcccpp.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcccpp.compiler.general.ChangeDefaultBitFieldUnsigned>
   <avrgcccpp.compiler.symbols.DefSymbols>
     <ListValues>
+      <Value>F_CPU=16000000L</Value>
+      <Value>ARDUINO=100</Value>
       <Value>DEBUG</Value>
     </ListValues>
   </avrgcccpp.compiler.symbols.DefSymbols>
+  <avrgcccpp.compiler.directories.IncludePaths>
+    <ListValues>
+      <Value>C:\Program Files (x86)\Arduino\hardware\arduino\avr\cores\arduino</Value>
+      <Value>C:\Program Files (x86)\Arduino\hardware\arduino\avr\variants\mega</Value>
+      <Value>C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\SoftwareSerial</Value>
+      <Value>C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\Wire</Value>
+      <Value>C:\Program Files (x86)\Arduino\hardware\arduino\avr\libraries\Wire\utility</Value>
+    </ListValues>
+  </avrgcccpp.compiler.directories.IncludePaths>
   <avrgcccpp.compiler.optimization.PackStructureMembers>True</avrgcccpp.compiler.optimization.PackStructureMembers>
   <avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>
   <avrgcccpp.compiler.optimization.DebugLevel>Default (-g2)</avrgcccpp.compiler.optimization.DebugLevel>
@@ -124,15 +173,26 @@
   <avrgcccpp.linker.libraries.Libraries>
     <ListValues>
       <Value>libm</Value>
+      <Value>libcore.a</Value>
     </ListValues>
   </avrgcccpp.linker.libraries.Libraries>
+  <avrgcccpp.linker.libraries.LibrarySearchPaths>
+    <ListValues>
+      <Value>D:\Users\Eduardo\Documents\Atmel Studio\6.2\arduinoCore</Value>
+    </ListValues>
+  </avrgcccpp.linker.libraries.LibrarySearchPaths>
   <avrgcccpp.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcccpp.assembler.debugging.DebugLevel>
 </AvrGccCpp>
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Headers\Arduino.h">
+    <Compile Include="C:\Program Files %28x86%29\Arduino\hardware\arduino\avr\libraries\Wire\utility\twi.c">
       <SubType>compile</SubType>
+      <Link>Arduino\twi.c</Link>
+    </Compile>
+    <Compile Include="C:\Program Files %28x86%29\Arduino\hardware\arduino\avr\libraries\Wire\Wire.cpp">
+      <SubType>compile</SubType>
+      <Link>Arduino\Wire.cpp</Link>
     </Compile>
     <Compile Include="Headers\Camera.h">
       <SubType>compile</SubType>
@@ -158,6 +218,9 @@
     <Compile Include="Headers\State.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Headers\usart.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Headers\Wheel.h">
       <SubType>compile</SubType>
     </Compile>
@@ -165,9 +228,6 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Robotics.cpp">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Source\Arduino.cpp">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\FrontCamera.cpp">
@@ -188,6 +248,9 @@
     <Compile Include="Source\Servo.cpp">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Source\usart.cpp">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Source\Wheel.cpp">
       <SubType>compile</SubType>
     </Compile>
@@ -200,6 +263,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Headers" />
+    <Folder Include="Arduino" />
     <Folder Include="States" />
     <Folder Include="Source" />
   </ItemGroup>

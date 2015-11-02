@@ -12,10 +12,10 @@
 
 // Wheels used by the robot
 
-Wheel FR(TIMER_1, CHANNEL_A, 10 ,11);
-Wheel FL(TIMER_1, CHANNEL_B, 12, 13);
-Wheel BR(TIMER_3, CHANNEL_A, 14, 15);
-Wheel BL(TIMER_3, CHANNEL_B, 16, 17);
+Wheel FR(TIMER_1, CHANNEL_A, 30 ,31);
+Wheel FL(TIMER_1, CHANNEL_B, 32, 33);
+Wheel BR(TIMER_3, CHANNEL_A, 34, 35);
+Wheel BL(TIMER_3, CHANNEL_B, 36, 37);
 
 // default constructor
 Robot::Robot()
