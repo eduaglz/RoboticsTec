@@ -28,5 +28,6 @@
 *.app
 Vision/build/
 
+/Control/Robotics/__vm
 /Control/Robotics/Debug
 /Control/Robotics/Release
