@@ -12,10 +12,12 @@
 
 // Wheels used by the robot
 
-Wheel FR(TIMER_1, CHANNEL_A, 30, 31);
-Wheel FL(TIMER_1, CHANNEL_B, 32, 33);
-Wheel BR(TIMER_3, CHANNEL_A, 34, 35);
-Wheel BL(TIMER_3, CHANNEL_B, 36, 37);
+Wheel FR(TIMER_1, CHANNEL_A, 30, 31); // PWM pin 11
+Wheel FL(TIMER_1, CHANNEL_B, 32, 33); // PWM pin 12
+Wheel BR(TIMER_3, CHANNEL_A, 34, 35); // PWM pin 5
+Wheel BL(TIMER_3, CHANNEL_B, 36, 37); // PWM pin 2
+
+// Sensors
 
 // default constructor
 Robot::Robot()
@@ -27,16 +29,18 @@ Robot::Robot()
   // default destructor
 Robot::~Robot()
 {
+	
 } //~Robot
 
 void Robot::Move(Direction dir, int speed)
 {
 	switch (dir) {
 	case FORWARD:
-		FR.Forward(speed);
-		FL.Forward(speed);
 		BR.Forward(speed);
 		BL.Forward(speed);
+		FR.Forward(speed);
+		FL.Forward(speed);
+
 		break;
 	case BACKWARD:
 		FR.Backward(speed);

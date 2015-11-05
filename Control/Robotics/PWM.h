@@ -56,7 +56,7 @@ private:
 public:
 	PWM();
 	PWM(Timer timer, Channel channel, int frequency, int dutyCycle, int Prescaler);
-	void SetDutyCycle(int dutyCycle);
+	void SetDutyCycle(float dutyCycle);
 	void SetFrequency(int frequency);
 	void Start();
 	void Stop();
