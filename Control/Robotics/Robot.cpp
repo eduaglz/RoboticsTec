@@ -22,6 +22,17 @@ Wheel BL(TIMER_3, CHANNEL_B, 36, 37); // PWM pin 2
 // default constructor
 Robot::Robot()
 {
+	// Init the sensors and servos
+	Right.Init(IR_RIGHT_PIN);
+	Left.Init(IR_LEFT_PIN);
+	Front.Init(IR_FRONT_PIN);
+	Front_Left.Init(IR_FRONT_LEFT_PIN);
+	Front_Right.Init(IR_FRONT_RIGHT_PIN);
+
+	Gripper_Left.attach(GRIPPER_LEFT_PIN);
+	Gripper_Right.attach(GRIPPER_RIGHT_PIN);
+	Gripper_Lifter.attach(GRIPPER_LIFTER_PINT);
+
 	StateMachine = new FSM(this);
 	StateMachine->SetCurrentState((State *)&SearchOilRigInstance);
 } //Robot

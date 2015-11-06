@@ -22,8 +22,6 @@ Wheel BR(TIMER_3, CHANNEL_A, 34, 35); // PWM pin 5
 Wheel BL(TIMER_3, CHANNEL_B, 36, 37); // PWM pin 2
 */
 
-//Compass myCompass;
-int degrees;
 int i = 1;
 // the setup function runs once when you press reset or power the board
 void setup() {

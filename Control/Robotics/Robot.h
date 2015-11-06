@@ -17,11 +17,15 @@
 #include "IR.h"
 #include "Compass.h"
 
-#define	IR_RIGHT_PIN 20
-#define	IR_LEFT_PIN 21
-#define	IR_FRONT_PIN 22
+#define	IR_RIGHT_PIN		20
+#define	IR_LEFT_PIN			21
+#define	IR_FRONT_PIN		22
 #define	IR_FRONT_RIGHT_PIN	23
 #define	IR_FRONT_LEFT_PIN	24
+
+#define GRIPPER_LEFT_PIN	25
+#define GRIPPER_RIGHT_PIN	26
+#define GRIPPER_LIFTER_PINT	27
 
 class FSM;
 
@@ -50,6 +54,7 @@ public:
 
 	Servo Gripper_Right;
 	Servo Gripper_Left;
+	Servo Gripper_Lifter;
 
 protected:
 private:
