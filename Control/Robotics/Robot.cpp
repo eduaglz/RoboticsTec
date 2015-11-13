@@ -33,8 +33,12 @@ Robot::Robot()
 	Gripper_Right.attach(GRIPPER_RIGHT_PIN);
 	Gripper_Lifter.attach(GRIPPER_LIFTER_PINT);
 
+	Line = 0;
+
 	StateMachine = new FSM(this);
 	StateMachine->SetCurrentState((State *)&SearchOilRigInstance);
+
+	compass.init(true);
 } //Robot
 
   // default destructor
@@ -72,14 +76,14 @@ void Robot::Move(Direction dir, int speed)
 		BL.Backward(speed);
 		break;
 	case RIGHT_TURN:
-		FR.Backward(speed);
-		FL.Forward(speed);
+		FR.Forward(speed);
+		FL.Backward(speed);
 		BR.Forward(speed);
 		BL.Backward(speed);
 		break;
 	case LEFT_TURN:
-		FR.Forward(speed);
-		FL.Backward(speed);
+		FR.Backward(speed);
+		FL.Forward(speed);
 		BR.Backward(speed);
 		BL.Forward(speed);
 		break;

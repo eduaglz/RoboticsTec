@@ -3,6 +3,10 @@
  Created:	10/25/2015 12:56:08 PM
  Author:	edua_
 */
+#include "RightTurnState.h"
+#include "MoveLeftState.h"
+#include "MoveRightState.h"
+#include "CrossWall.h"
 #include <Servo.h>
 #include "IR.h"
 #define COMPASS_DEBUG
@@ -28,7 +32,8 @@ void setup() {
 	// put your setup code here, to run once:
 	Serial.begin(9600);
 	delay(1000);
-
+	//robot.StateMachine->SetCurrentState(&MoveRight);
+	//robot.StateMachine->SetCurrentState(&RightTurn);
 	//Serial.println("Initializing");
 	//myCompass.init(true);
 	//robot.Move(FORWARD, 50);
@@ -48,10 +53,24 @@ void loop() {
 	//degrees = (int)myCompass.getOrientation();
 	//Serial.printf("Degrees %d \n", degrees);
 	//Serial.println(degrees);
-	
-	robot.Move(BACKWARD, 50);
+	//Serial.println(analogRead(9));
+	//Serial.println(robot.Front_Left.read());
+	//robot.StateMachine->Update();
+	//Serial.println(robot.compass.getOrientation());
+	robot.Move(RIGHT_TURN, 50);
+	//delay(4700);
+	//robot.Move(LEFT_TURN, 50);
+	//delay(4700);
+	//Serial.println(robot.Right.read());
+	//Serial.println(analogRead(8));
+	/*
+	robot.Move(FORWARD, 100);
 	delay(1000);
-	robot.Move(FORWARD, 90);
+	robot.Move(LEFT, 100);
 	delay(1000);
-	
+	robot.Move(BACKWARD, 100);
+	delay(1000);
+	robot.Move(RIGHT, 100);
+	delay(1000);
+	*/
 }

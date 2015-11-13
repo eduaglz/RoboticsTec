@@ -80,8 +80,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Compass.h" />
+    <ClInclude Include="CrossWall.h" />
     <ClInclude Include="FSM.h" />
     <ClInclude Include="IR.h" />
+    <ClInclude Include="MoveLeftState.h" />
+    <ClInclude Include="MoveRightState.h" />
     <ClInclude Include="PWM.h" />
     <ClInclude Include="Robot.h" />
     <ClInclude Include="SearchOilRig.h" />
@@ -92,8 +95,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Compass.cpp" />
+    <ClCompile Include="CrossWall.cpp" />
     <ClCompile Include="FSM.cpp" />
     <ClCompile Include="IR.cpp" />
+    <ClCompile Include="MoveLeftState.cpp" />
+    <ClCompile Include="MoveRightState.cpp" />
     <ClCompile Include="PWM.cpp" />
     <ClCompile Include="Robot.cpp" />
     <ClCompile Include="SearchOilRig.cpp" />
