@@ -116,7 +116,13 @@ Features fillRegion(Mat &src, Mat &dst, Point start, Vec3b color)
         features.M20 += current.x * current.x;
         features.M02 += current.y * current.y;
         features.M11 += current.y * current.x;
- 
+        /*
+        cout << "Current: " << current << endl;
+ 		cout << top << endl;
+ 		cout << bot << endl;
+ 		cout << right << endl;
+ 		cout << left << endl;
+ 		*/
         if(top.y >= 0 && dst.at<Vec3b>(top) == Vec3b(0,0,0) && src.at<uchar>(top)!= 0)
         {
             dst.at<Vec3b>(top) = color;
@@ -135,7 +141,7 @@ Features fillRegion(Mat &src, Mat &dst, Point start, Vec3b color)
             cadena.push_back(right);
         }
 
-        if(left.y >= 0 && dst.at<Vec3b>(left) == Vec3b(0,0,0) && src.at<uchar>(left)!= 0)
+        if(left.x >= 0 && dst.at<Vec3b>(left) == Vec3b(0,0,0) && src.at<uchar>(left)!= 0)
         {
             dst.at<Vec3b>(left) = color;
             cadena.push_back(left);
@@ -285,8 +291,8 @@ int main()
     cvNamedWindow("Threshold", 1);
     cvNamedWindow("Segment", 1);
 
-    createTrackbar("S Max", "Segment", &sMax, 180, on_trackbar);
-    createTrackbar("V Max", "Segment", &vMax, 180, on_trackbar);
+    createTrackbar("S Max", "Segment", &sMax, 255, on_trackbar);
+    createTrackbar("V Max", "Segment", &vMax, 255, on_trackbar);
 
 	setMouseCallback("Original", mouseCallback);
 
@@ -306,8 +312,8 @@ int main()
     ofstream fannFile;
     initFannFIle(fannFile);
     while(1){ 
-	cout << "Iniciando Loop" << endl;
     	// Create infinte loop for live streaming
+	clock_t tStart = clock();
 		Mat threshold(240,320,CV_8UC1,255);
 		camera >> frame;
 	    cvtColor(frame, frame, CV_RGB2HSV);
@@ -323,11 +329,10 @@ int main()
             oilRigFound |= detectShape(f) == OIL_RIG;
             shapes.pop_front();
         }
-        cout << "Shapes found" <<endl;
+
 		//oilRigFound = getShapes(threshold, out);
 		imshow("Threshold", threshold);
 		imshow("Segment", out);   // Show image frames on created window
-        cout << "Mandando a pantalla" <<endl;
 	    imshow("Original", frame);
 		key = cvWaitKey(10);     // Capture Keyboard stroke
 		switch(char(key)){
@@ -389,10 +394,10 @@ int main()
         if (char(key) == 27){
             break;      // If you hit ESC key loop will break.
         }
-        cout << "Antes de hacer release"<<endl;
         out.refcount = 0;
         out.release();
-        cout << "Finishing loop" <<endl;
+	clock_t tEnd = clock();
+	printf("Frame Time: %.2f\n", (double)(tEnd-tStart)/CLOCKS_PER_SEC);
     }
 
     return 0;
