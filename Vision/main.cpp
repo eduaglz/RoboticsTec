@@ -165,13 +165,13 @@ Features fillRegion(Mat &src, Mat &dst, Point start, Vec3b color)
     return features;
 }
 
-list<Features> getShapes(Mat &img, Mat &out, int minSize = 2000)
+Features getShapes(Mat &img, Mat &out, int minSize = 2000)
 {
 	short nRows = img.rows;
 	short nCols = img.cols;
 	int row,col;
 	bool found = false;
-    list<Features> shapes;
+    Features topShape;
 	// printf("Creando mat temporal de %dx%d\n",nRows,nCols);
 	// out = Mat(img.rows, img.cols, Scalar(0,0,0));
 	// Iterate all elements to find shapes in the image
@@ -187,8 +187,13 @@ list<Features> getShapes(Mat &img, Mat &out, int minSize = 2000)
 			{
 				// printf("Punto encontrado en (%d,%d)\n",row,col);
 				Features f = fillRegion(img, out, p, colores[shapes.size()%10]);
+                if(topShape == default(Features) || f.M00 > topShape.M00)
+                {
+                    topShape = f;
+                }/*
                 if(f.M00 >= minSize)
                     shapes.push_back(f);
+                    */
 			}
 		}
 	}
@@ -310,7 +315,7 @@ setMouseCallback("Original", mouseCallback);
 	}
     fillCollors();
 	int oilRigFound;
-    list<Features> shapes;
+    Features shape;
     Features firstShape;
 
     ofstream fannFile;
@@ -326,7 +331,12 @@ setMouseCallback("Original", mouseCallback);
 	dilate(threshold, threshold, Mat());
 	erode(threshold, threshold, Mat());
         Mat out( 240, 320, CV_8UC3, Scalar(0,0,0));
-        shapes = getShapes(threshold, out);
+        shape = getShapes(threshold, out);
+        if(shape != default(Features))
+        {
+            oilRigFound |= detectShape(shape) == OIL_RIG;
+        }
+        /*
         while(!shapes.empty())
         {
             Features f = shapes.front();
@@ -334,7 +344,7 @@ setMouseCallback("Original", mouseCallback);
             oilRigFound |= detectShape(f) == OIL_RIG;
             shapes.pop_front();
         }
-
+        */
 		//oilRigFound = getShapes(threshold, out);
 		imshow("Threshold", threshold);
 		imshow("Segment", out);   // Show image frames on created window
