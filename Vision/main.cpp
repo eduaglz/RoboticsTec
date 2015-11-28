@@ -209,7 +209,7 @@ Figures detectShape(const Features &feature)
     }
 
     //printf("%f %f %f %f %f\n",result[0],result[1],result[2],result[3],result[4]);
-/*    
+    
     switch(max)
     {
         case 0:
@@ -230,7 +230,7 @@ Figures detectShape(const Features &feature)
         default:
             break;
     }
-*/
+
     //printf("M00: %f F1: %f F2: %f Cx: %f Cy: %f\n",feature.M00, feature.F1, feature.F2, feature.Cx, feature.Cy);
     /*
      float M00,

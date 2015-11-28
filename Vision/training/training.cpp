@@ -6,7 +6,7 @@ int main()
     const unsigned int num_output = 5;
     const unsigned int num_layers = 3;
     const unsigned int num_neurons_hidden = 3;
-    const float desired_error = (const float) 0.001;
+    const float desired_error = (const float) 0.006;
     const unsigned int max_epochs = 500000;
     const unsigned int epochs_between_reports = 1000;
 
