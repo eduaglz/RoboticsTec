@@ -15,7 +15,7 @@ bool oilRigInFirstFrame = false;
 bool oilRigInSecondFrame = false;
 Vec3b colores [10];
 
-int sMax = 255, vMax = 44, hMax = 180;
+int sMax = 255, vMax = 56, hMax = 180;
 int sMin = 0, vMin = 0, hMin = 20;
 
 struct Features
@@ -165,13 +165,13 @@ Features fillRegion(Mat &src, Mat &dst, Point start, Vec3b color)
     return features;
 }
 
-Features getShapes(Mat &img, Mat &out, int minSize = 2000)
+bool getShapes(Mat &img, Mat &out, Features &result, int MinSize = 2000)
 {
 	short nRows = img.rows;
 	short nCols = img.cols;
 	int row,col;
 	bool found = false;
-    Features topShape;
+        Features topShape;
 	// printf("Creando mat temporal de %dx%d\n",nRows,nCols);
 	// out = Mat(img.rows, img.cols, Scalar(0,0,0));
 	// Iterate all elements to find shapes in the image
@@ -186,9 +186,10 @@ Features getShapes(Mat &img, Mat &out, int minSize = 2000)
 			if( img.at<uchar>(row,col) != 0 && out.at<Vec3b>(row,col) == Vec3b(0,0,0) )
 			{
 				// printf("Punto encontrado en (%d,%d)\n",row,col);
-				Features f = fillRegion(img, out, p, colores[shapes.size()%10]);
-                if(topShape == default(Features) || f.M00 > topShape.M00)
+				Features f = fillRegion(img, out, p, colores[col%10]);
+                if(topShape.M00 == 0 || f.M00 > topShape.M00)
                 {
+		    found = true;
                     topShape = f;
                 }/*
                 if(f.M00 >= minSize)
@@ -197,8 +198,9 @@ Features getShapes(Mat &img, Mat &out, int minSize = 2000)
 			}
 		}
 	}
+	result = topShape;
     //cout << "Finishing getShapes" << endl;
-	return shapes;
+	return found;
 }
 
 Figures detectShape(const Features &feature)
@@ -331,8 +333,8 @@ setMouseCallback("Original", mouseCallback);
 	dilate(threshold, threshold, Mat());
 	erode(threshold, threshold, Mat());
         Mat out( 240, 320, CV_8UC3, Scalar(0,0,0));
-        shape = getShapes(threshold, out);
-        if(shape != default(Features))
+        bool found = getShapes(threshold, out, shape);
+        if(found)
         {
             oilRigFound |= detectShape(shape) == OIL_RIG;
         }
