@@ -15,7 +15,8 @@ bool oilRigInFirstFrame = false;
 bool oilRigInSecondFrame = false;
 Vec3b colores [10];
 
-int sMax = 180, vMax = 0;
+int sMax = 255, vMax = 44, hMax = 180;
+int sMin = 0, vMin = 0, hMin = 20;
 
 struct Features
 {
@@ -207,8 +208,8 @@ Figures detectShape(const Features &feature)
             max = i;
     }
 
-    printf("%f %f %f %f %f\n",result[0],result[1],result[2],result[3],result[4]);
-    
+    //printf("%f %f %f %f %f\n",result[0],result[1],result[2],result[3],result[4]);
+/*    
     switch(max)
     {
         case 0:
@@ -229,7 +230,7 @@ Figures detectShape(const Features &feature)
         default:
             break;
     }
-
+*/
     //printf("M00: %f F1: %f F2: %f Cx: %f Cy: %f\n",feature.M00, feature.F1, feature.F2, feature.Cx, feature.Cy);
     /*
      float M00,
@@ -290,11 +291,14 @@ int main()
     cvNamedWindow("Original", 1);    //Create window
     cvNamedWindow("Threshold", 1);
     cvNamedWindow("Segment", 1);
-
+    createTrackbar("H min", "Segment", &hMin, 180, on_trackbar);
+    createTrackbar("H Max", "Segment", &hMax, 180, on_trackbar);
+    createTrackbar("S Min", "Segment", &sMin, 255, on_trackbar);
     createTrackbar("S Max", "Segment", &sMax, 255, on_trackbar);
+    createTrackbar("V Min", "Segment", &vMin, 255, on_trackbar);
     createTrackbar("V Max", "Segment", &vMax, 255, on_trackbar);
 
-	setMouseCallback("Original", mouseCallback);
+setMouseCallback("Original", mouseCallback);
 
 	VideoCapture camera(0);
     camera.set(CV_CAP_PROP_FRAME_WIDTH,320);
@@ -314,13 +318,14 @@ int main()
     while(1){ 
     	// Create infinte loop for live streaming
 	clock_t tStart = clock();
-		Mat threshold(240,320,CV_8UC1,255);
-		camera >> frame;
-	    cvtColor(frame, frame, CV_RGB2HSV);
-		inRange(frame,Scalar(0,0,0), Scalar(179,sMax,vMax), threshold);
-		erode(threshold, threshold, Mat());
-		dilate(threshold, threshold, Mat());
-		Mat out( 240, 320, CV_8UC3, Scalar(0,0,0));
+	Mat threshold(240,320,CV_8UC1,255);
+	camera >> frame;
+	cvtColor(frame, frame, CV_RGB2HSV);
+	inRange(frame,Scalar(hMin,sMin,vMin), Scalar(hMax,sMax,vMax), threshold);
+	//erode(threshold, threshold, Mat());
+	dilate(threshold, threshold, Mat());
+	erode(threshold, threshold, Mat());
+        Mat out( 240, 320, CV_8UC3, Scalar(0,0,0));
         shapes = getShapes(threshold, out);
         while(!shapes.empty())
         {
@@ -333,7 +338,7 @@ int main()
 		//oilRigFound = getShapes(threshold, out);
 		imshow("Threshold", threshold);
 		imshow("Segment", out);   // Show image frames on created window
-	    imshow("Original", frame);
+	    	imshow("Original", frame);
 		key = cvWaitKey(10);     // Capture Keyboard stroke
 		switch(char(key)){
 			case 'i':
@@ -397,7 +402,7 @@ int main()
         out.refcount = 0;
         out.release();
 	clock_t tEnd = clock();
-	printf("Frame Time: %.2f\n", (double)(tEnd-tStart)/CLOCKS_PER_SEC);
+	//printf("Frame Time: %.2f\n", (double)(tEnd-tStart)/CLOCKS_PER_SEC);
     }
 
     return 0;
