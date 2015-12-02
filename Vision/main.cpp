@@ -4,10 +4,12 @@
 #include <highgui.h>
 #include <list>
 #include "floatfann.h"
- 
+#include "wiringSerial.h"
+#include <string>
 
 using namespace std;
 using namespace cv;
+
 char key;
 Mat frame;
 bool firstFrame = true;
@@ -15,8 +17,12 @@ bool oilRigInFirstFrame = false;
 bool oilRigInSecondFrame = false;
 Vec3b colores [10];
 
-int sMax = 255, vMax = 44, hMax = 180;
+int sMax = 255, vMax = 56, hMax = 180;
 int sMin = 0, vMin = 0, hMin = 20;
+
+bool gui = false;
+
+int handle;
 
 struct Features
 {
@@ -32,12 +38,18 @@ struct Features
 	 Cy;
 };
 
-enum Figures{
+enum Figure{
     NONE,
     OIL_RIG,
     TRIANGLE,
     CIRCLE,
     RECTANGLE
+};
+
+enum COMMANDS{
+	ACK,
+  	GET_FIGURE,
+  	GET_OIL_RIG
 };
 
 int a,b,c,d,e = 0;
@@ -46,6 +58,8 @@ fann_type *result;
 fann_type input[2];
 struct fann *ann;
 
+
+// Gets the HSV value of the clicked pixel
 void mouseCallback(int event, int x, int y, int flags, void* param)
 {
 	int H,S,V;
@@ -61,48 +75,28 @@ void mouseCallback(int event, int x, int y, int flags, void* param)
             }
              
             break;
-
-
-/*        
-			case CV_EVENT_MOUSEMOVE:
-            if(frame.data) 
-            {
-                int Hm = frame.at<Vec3b>(y,x).val[0];
-                int Sm = frame.at<Vec3b>(y,x).val[1];
-                int Vm = frame.at<Vec3b>(y,x).val[2];
-                mouseHSV[0] = Hm;
-                mouseHSV[1] = Sm;
-                mouseHSV[2] = Vm;
-                printf("H: %d, S: %d, V: %d\n",Hm,Sm,Vm);
-            }
-            break;
-*/
     }
 }
-
+// Get a random RGB color
 Vec3b getRandomColor()
 {
     return Vec3b(rand()%255,rand()%255,rand()%255);
 }
 
+// Fills all the pixels connected to the starting poing and paints the result on the output Mat
 Features fillRegion(Mat &src, Mat &dst, Point start, Vec3b color)
 {
-    int size = 0;
-    list<Point> cadena;
-    cadena.push_back(start);
-    Features features;
-    features.M00 = features. M10 = features.M01 = 0;
-    features.M20 = features.M02 = features.M11 = 0;
-    //cout << "Iniciando fillRegion" << endl;
+    list<Point> cadena;									// Queue where pixels are going to be added
+    Features features;									// Struct for saving all the calculated values
+    features.M00 = features. M10 = features.M01 = 0;	// Initialize all values on 0 
+    features.M20 = features.M02 = features.M11 = 0;		//
+    cadena.push_back(start);							// Add the starting point to the Queue
 
+
+    // Loop trough all the values of the queue
     while(!cadena.empty())  
     {
-    	//cout << "Tamaño de la cadena:" << cadena.size() << endl;
-        if(cadena.size()>size)
-        {
-            size = cadena.size();
-        }
-
+    	// Pop the top element and get its neighbourgs
         Point current = cadena.front();
         cadena.pop_front();
         Point top,bot,right,left;
@@ -111,19 +105,16 @@ Features fillRegion(Mat &src, Mat &dst, Point start, Vec3b color)
         bot.y += 1;
         right.x += 1;
         left.x -= 1;
+
+        // Update the shape calculations
         features.M00++;
         features.M10 += current.x;
         features.M01 += current.y;
         features.M20 += current.x * current.x;
         features.M02 += current.y * current.y;
         features.M11 += current.y * current.x;
-        /*
-        cout << "Current: " << current << endl;
- 		cout << top << endl;
- 		cout << bot << endl;
- 		cout << right << endl;
- 		cout << left << endl;
- 		*/
+
+        // If the point exists and its value isn't zero, add it to the queue for processing
         if(top.y >= 0 && dst.at<Vec3b>(top) == Vec3b(0,0,0) && src.at<uchar>(top)!= 0)
         {
             dst.at<Vec3b>(top) = color;
@@ -149,6 +140,7 @@ Features fillRegion(Mat &src, Mat &dst, Point start, Vec3b color)
         }
     }
 
+    // Finish the calculations on the shape
     features.Cx = features.M10 / features.M00;
     features.Cy = features.M01/ features.M00;
     float MU20 = features.M20 - (features.Cx*features.M10);
@@ -161,47 +153,43 @@ Features fillRegion(Mat &src, Mat &dst, Point start, Vec3b color)
     float rad = atan2(2*MU11,MU20-MU02)/2;
     features.F1 = N20 + N02;
     features.F2 = ((N20 - N02)*(N20 - N02)) + (4*(N11*N11));
-    //cout << "Finishing fillRegion" << endl;
     return features;
 }
 
-Features getShapes(Mat &img, Mat &out, int minSize = 2000)
+// Iterates through the image and returns the biggest Shape found
+// Returns True if any shape is found, False otherwise
+bool getShapes(Mat &img, Mat &out, Features &result, int MinSize = 2000)
 {
 	short nRows = img.rows;
 	short nCols = img.cols;
 	int row,col;
 	bool found = false;
-    Features topShape;
-	// printf("Creando mat temporal de %dx%d\n",nRows,nCols);
-	// out = Mat(img.rows, img.cols, Scalar(0,0,0));
+	Features topShape;
+
 	// Iterate all elements to find shapes in the image
 	for ( row = 0; row < nRows; row++)
 	{
-		// uchar *ptr = img.ptr<uchar>(row);
 		for( col = 0; col < nCols; col++)
 		{
 			Point p(col,row);
-			// cout << row << "," << col << endl;
 			// Look at the point only if theres a value on it and we haven't been there before
 			if( img.at<uchar>(row,col) != 0 && out.at<Vec3b>(row,col) == Vec3b(0,0,0) )
 			{
-				// printf("Punto encontrado en (%d,%d)\n",row,col);
-				Features f = fillRegion(img, out, p, colores[shapes.size()%10]);
-                if(topShape == default(Features) || f.M00 > topShape.M00)
+				Features f = fillRegion(img, out, p, colores[col%10]);
+                if(topShape.M00 == 0 || f.M00 > topShape.M00)
                 {
+		    		found = true;
                     topShape = f;
-                }/*
-                if(f.M00 >= minSize)
-                    shapes.push_back(f);
-                    */
+                }
 			}
 		}
 	}
-    //cout << "Finishing getShapes" << endl;
-	return shapes;
+
+	result = topShape;
+	return found;
 }
 
-Figures detectShape(const Features &feature)
+Figure detectShape(const Features &feature)
 {
     input[0] = feature.F1;
     input[1] = feature.F2;
@@ -212,9 +200,28 @@ Figures detectShape(const Features &feature)
         if(result[i] > result[max])
             max = i;
     }
-
-    //printf("%f %f %f %f %f\n",result[0],result[1],result[2],result[3],result[4]);
-    
+    switch(max)
+    {
+        case 0:
+            return NONE;
+            break;
+        case 1:
+        	return OIL_RIG;
+            break;
+        case 2:
+        	return TRIANGLE;
+            break;
+        case 3:
+        	return CIRCLE;
+            break;
+        case 4:
+            return RECTANGLE;
+            break;
+        default:
+        	return NONE;
+            break;
+    }
+    /*
     switch(max)
     {
         case 0:
@@ -235,22 +242,7 @@ Figures detectShape(const Features &feature)
         default:
             break;
     }
-
-    //printf("M00: %f F1: %f F2: %f Cx: %f Cy: %f\n",feature.M00, feature.F1, feature.F2, feature.Cx, feature.Cy);
-    /*
-     float M00,
-     M01,
-     M10,
-     M11,
-     M02,
-     M20,
-     F1,
-     F2,
-     Cx,
-     Cy;
     */
-
-
 }
 
 void on_trackbar(int, void*){
@@ -268,7 +260,7 @@ void initFannFIle(ofstream &file){
     //file << "0 2 5"<< endl;
 }
 
-void printToFannFile(ofstream &file, Features feature, Figures figure){
+void printToFannFile(ofstream &file, Features feature, Figure figure){
         file << feature.F1 << " " << feature.F2 << endl;
         switch(figure){
             case NONE:
@@ -290,20 +282,54 @@ void printToFannFile(ofstream &file, Features feature, Figures figure){
         file << endl;
 }
 
-int main()
+bool findFigure(Figure figure, Mat frame)
 {
-    ann = fann_create_from_file("robotics.net");
-    cvNamedWindow("Original", 1);    //Create window
-    cvNamedWindow("Threshold", 1);
-    cvNamedWindow("Segment", 1);
-    createTrackbar("H min", "Segment", &hMin, 180, on_trackbar);
-    createTrackbar("H Max", "Segment", &hMax, 180, on_trackbar);
-    createTrackbar("S Min", "Segment", &sMin, 255, on_trackbar);
-    createTrackbar("S Max", "Segment", &sMax, 255, on_trackbar);
-    createTrackbar("V Min", "Segment", &vMin, 255, on_trackbar);
-    createTrackbar("V Max", "Segment", &vMax, 255, on_trackbar);
+	Mat threshold(240,320,CV_8UC1,255);
+	inRange(frame,Scalar(hMin,sMin,vMin), Scalar(hMax,sMax,vMax), threshold);
+	dilate(threshold, threshold, Mat());
+	erode(threshold, threshold, Mat());
+    Mat out( 240, 320, CV_8UC3, Scalar(0,0,0));
+    Features shape;
+    bool found = getShapes(threshold, out, shape);
+    out.refcount = 0;
+    out.release();
+    threshold.refcount = 0;
+    threshold.release();
+    return found && detectShape(shape) == figure;
+}
 
-setMouseCallback("Original", mouseCallback);
+int main(int argc, char *argv[])
+{
+	if(argc>1){
+		if(String(argv[1]) == "-x")
+		{
+			gui = true;
+		}
+	}
+
+	handle = serialOpen("/dev/ttyUSB0",9600);
+	if(handle == -1){
+		cout << "Error opening SerialPort" << endl;
+		return 1;
+	}
+	int datac = 0;
+
+
+
+    ann = fann_create_from_file("robotics.net");
+    if(gui){
+	    cvNamedWindow("Original", 1);    //Create window
+	    cvNamedWindow("Threshold", 1);
+	    cvNamedWindow("Segment", 1);
+	    createTrackbar("H min", "Segment", &hMin, 180, on_trackbar);
+	    createTrackbar("H Max", "Segment", &hMax, 180, on_trackbar);
+	    createTrackbar("S Min", "Segment", &sMin, 255, on_trackbar);
+	    createTrackbar("S Max", "Segment", &sMax, 255, on_trackbar);
+	    createTrackbar("V Min", "Segment", &vMin, 255, on_trackbar);
+	    createTrackbar("V Max", "Segment", &vMax, 255, on_trackbar);
+
+		setMouseCallback("Original", mouseCallback);
+	}
 
 	VideoCapture camera(0);
     camera.set(CV_CAP_PROP_FRAME_WIDTH,320);
@@ -313,6 +339,7 @@ setMouseCallback("Original", mouseCallback);
 		cerr << "ERROR: Could not open camera" << endl;
 		return 1;
 	}
+
     fillCollors();
 	int oilRigFound;
     Features shape;
@@ -320,36 +347,57 @@ setMouseCallback("Original", mouseCallback);
 
     ofstream fannFile;
     initFannFIle(fannFile);
+
+
+	while(1){
+		datac = serialDataAvail(handle);
+		if(datac>0){
+			int c = serialGetchar(handle);
+			switch(c){
+				case ACK:
+					cout << "Acknowledge received" <<endl;
+					break;
+				case GET_OIL_RIG:
+					cout<<"GET_OIL_RIG received"<< endl;
+					camera >> frame;
+					if(findFigure(OIL_RIG, frame)){
+						cout << "OIL_RIG found, responding Arduino" << endl;
+						serialPutchar(handle,1);
+					}else{
+						cout << "OIL_RIG not found, responding Arduino" <<endl;
+						serialPutchar(handle,0);
+					}
+					break;
+				default:
+					printf("Uknown command received: %d\n",c);
+					break;
+			}
+		}
+	}
+
+
     while(1){ 
     	// Create infinte loop for live streaming
-	clock_t tStart = clock();
-	Mat threshold(240,320,CV_8UC1,255);
-	camera >> frame;
-	cvtColor(frame, frame, CV_RGB2HSV);
-	inRange(frame,Scalar(hMin,sMin,vMin), Scalar(hMax,sMax,vMax), threshold);
-	//erode(threshold, threshold, Mat());
-	dilate(threshold, threshold, Mat());
-	erode(threshold, threshold, Mat());
+		Mat threshold(240,320,CV_8UC1,255);
+		camera >> frame;
+		cvtColor(frame, frame, CV_RGB2HSV);
+		inRange(frame,Scalar(hMin,sMin,vMin), Scalar(hMax,sMax,vMax), threshold);
+		dilate(threshold, threshold, Mat());
+		erode(threshold, threshold, Mat());
         Mat out( 240, 320, CV_8UC3, Scalar(0,0,0));
-        shape = getShapes(threshold, out);
-        if(shape != default(Features))
+        bool found = getShapes(threshold, out, shape);
+        if(found)
         {
             oilRigFound |= detectShape(shape) == OIL_RIG;
         }
-        /*
-        while(!shapes.empty())
-        {
-            Features f = shapes.front();
-            firstShape = f;
-            oilRigFound |= detectShape(f) == OIL_RIG;
-            shapes.pop_front();
-        }
-        */
-		//oilRigFound = getShapes(threshold, out);
-		imshow("Threshold", threshold);
-		imshow("Segment", out);   // Show image frames on created window
+        if(gui){
+			imshow("Threshold", threshold);
+			imshow("Segment", out);   // Show image frames on created window
 	    	imshow("Original", frame);
+        }
+
 		key = cvWaitKey(10);     // Capture Keyboard stroke
+
 		switch(char(key)){
 			case 'i':
 				if(firstFrame){
@@ -409,10 +457,9 @@ setMouseCallback("Original", mouseCallback);
         if (char(key) == 27){
             break;      // If you hit ESC key loop will break.
         }
+
         out.refcount = 0;
         out.release();
-	clock_t tEnd = clock();
-	//printf("Frame Time: %.2f\n", (double)(tEnd-tStart)/CLOCKS_PER_SEC);
     }
 
     return 0;
