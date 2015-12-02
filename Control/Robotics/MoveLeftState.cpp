@@ -8,7 +8,7 @@
 
 void MoveLeftState::Enter(Robot* robot)
 {
-	robot->Move(LEFT, 50);
+	robot->Move(LEFT, 30);
 }
 
 void MoveLeftState::Execute(Robot* robot)
@@ -17,7 +17,6 @@ void MoveLeftState::Execute(Robot* robot)
 	float rightDistance = robot->Front_Right.read();
 	float leftDistance = robot->Front_Left.read();
 	float leftSide = robot->Left.read();
-	Serial.println(leftSide);
 	if (rightDistance > 10 && leftDistance > 10)
 	{
 		delay(300);

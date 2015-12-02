@@ -8,7 +8,7 @@
 
 void MoveRightState::Enter(Robot* robot)
 {
-	robot->Move(RIGHT, 50);
+	robot->Move(RIGHT, 30);
 }
 
 void MoveRightState::Execute(Robot* robot)
@@ -17,7 +17,6 @@ void MoveRightState::Execute(Robot* robot)
 	float rightDistance = robot->Front_Right.read();
 	float leftDistance = robot->Front_Left.read();
 	float rightSensor = robot->Right.read();
-	Serial.println(rightSensor);
 	if (rightSensor > 12)
 	{
 		robot->StateMachine->ChangeState(&MoveLeft);

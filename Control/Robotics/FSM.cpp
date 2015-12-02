@@ -5,7 +5,6 @@
 * Author: edua_
 */
 
-
 #include "FSM.h"
 #include <stdlib.h>
 
