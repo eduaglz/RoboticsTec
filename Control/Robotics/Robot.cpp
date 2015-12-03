@@ -21,9 +21,17 @@ Wheel BL(TIMER_3, CHANNEL_B, 36, 37); // PWM pin 2
 
 // default constructor
 Robot::Robot()
-{
+{	Line = 0;
+
+	StateMachine = new FSM(this);
+	//StateMachine->SetCurrentState((State *)&SearchOilRigInstance);
+
+	//compass.init(true);
+} //Robot
+
+void Robot::Init() {
 	// Init the sensors and servos
-	Right.Init(IR_RIGHT_PIN);
+	Right.Init(IR_RIGHT_PIN); 
 	Left.Init(IR_LEFT_PIN);
 	Front.Init(IR_FRONT_PIN);
 	Front_Left.Init(IR_FRONT_LEFT_PIN);
@@ -31,16 +39,9 @@ Robot::Robot()
 
 	Gripper_Left.attach(GRIPPER_LEFT_PIN);
 	Gripper_Right.attach(GRIPPER_RIGHT_PIN);
-	Gripper_Lifter.attach(GRIPPER_LIFTER_PINT);
-
-	Line = 0;
-
-	StateMachine = new FSM(this);
-	StateMachine->SetCurrentState((State *)&SearchOilRigInstance);
-
-	compass.init(true);
-} //Robot
-
+	Gripper_Lifter.attach(GRIPPER_LIFTER_PIN);
+	Camera_Servo.attach(CAMERA_PIN);
+}
   // default destructor
 Robot::~Robot()
 {
@@ -55,7 +56,6 @@ void Robot::Move(Direction dir, int speed)
 		BL.Forward(speed);
 		FR.Forward(speed);
 		FL.Forward(speed);
-
 		break;
 	case BACKWARD:
 		FR.Backward(speed);
@@ -66,24 +66,24 @@ void Robot::Move(Direction dir, int speed)
 	case LEFT:
 		FR.Forward(speed);
 		FL.Backward(speed);
-		BR.Backward(speed);
-		BL.Forward(speed);
+		BR.Forward(speed);
+		BL.Backward(speed);
 		break;
 	case RIGHT:
 		FR.Backward(speed);
 		FL.Forward(speed);
-		BR.Forward(speed);
-		BL.Backward(speed);
+		BR.Backward(speed);
+		BL.Forward(speed);
 		break;
 	case RIGHT_TURN:
-		FR.Forward(speed);
-		FL.Backward(speed);
+		FR.Backward(speed);
+		FL.Forward(speed);
 		BR.Forward(speed);
 		BL.Backward(speed);
 		break;
 	case LEFT_TURN:
-		FR.Backward(speed);
-		FL.Forward(speed);
+		FR.Forward(speed);
+		FL.Backward(speed);
 		BR.Backward(speed);
 		BL.Forward(speed);
 		break;

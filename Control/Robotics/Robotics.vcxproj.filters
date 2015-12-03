@@ -60,8 +60,11 @@
     <ClInclude Include="CrossWall.h">
       <Filter>Header Files\States</Filter>
     </ClInclude>
+    <ClInclude Include="RightTurnState.h">
+      <Filter>Header Files\States</Filter>
+    </ClInclude>
     <ClInclude Include="MoveLeftState.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\States</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -93,7 +96,10 @@
       <Filter>Source Files\States</Filter>
     </ClCompile>
     <ClCompile Include="MoveLeftState.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="RightTurnState.cpp">
+      <Filter>Source Files\States</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -22,7 +22,7 @@ PWM::PWM(Timer timer, Channel channel, int frequency, int dutyCycle, int prescal
 	//	WGM:	Waveform Generation Mode
 	//	ICR:	Input Control Register
 	//	COM:	Compare Output Mode
-
+	/**/
 	switch (timer) {
 		case TIMER_1:
 			ControlRegA = &TCCR1A;

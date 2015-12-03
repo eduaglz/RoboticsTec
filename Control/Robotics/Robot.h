@@ -15,17 +15,18 @@
 #include "Wheel.h"
 #include "FSM.h"
 #include "IR.h"
-#include "Compass.h"
+//#include "Compass.h"
 
 #define	IR_RIGHT_PIN		8
 #define	IR_LEFT_PIN			9
 #define	IR_FRONT_PIN		10
-#define	IR_FRONT_RIGHT_PIN	11
-#define	IR_FRONT_LEFT_PIN	12
+#define	IR_FRONT_LEFT_PIN	11
+#define	IR_FRONT_RIGHT_PIN	12
 
 #define GRIPPER_LEFT_PIN	25
-#define GRIPPER_RIGHT_PIN	26
-#define GRIPPER_LIFTER_PINT	27
+#define GRIPPER_RIGHT_PIN	27
+#define GRIPPER_LIFTER_PIN	26
+#define CAMERA_PIN			28
 
 class FSM;
 
@@ -50,11 +51,12 @@ public:
 	IR	Front_Right;
 	IR	Front_Left;
 
-	Compass compass;
+	//Compass compass;
 
 	Servo Gripper_Right;
 	Servo Gripper_Left;
 	Servo Gripper_Lifter;
+	Servo Camera_Servo;
 
 	int Line;
 
@@ -65,6 +67,7 @@ private:
 public:
 	Robot();
 	~Robot();
+	void Init();
 	void Move(Direction dir, int speed);
 	void Stop();
 

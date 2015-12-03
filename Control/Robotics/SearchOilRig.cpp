@@ -14,10 +14,15 @@ void SearchOilRig::Enter(Robot* robot) {
 }
 
 void SearchOilRig::Execute(Robot* robot) {
-	pos += 100;
-	Serial.print("Moviendo Robot");
-	Serial.println(pos);
-	robot->Move(FORWARD, 100);
+	robot->Move(RIGHT,50);
+	delay(1000);
+	robot->Stop();
+	Serial.write(0x20);
+	while(!Serial.available()) {
+		delay(10);
+	}
+	char response = Serial.read();
+	
 }
 
 void SearchOilRig::Exit(Robot* robot) {

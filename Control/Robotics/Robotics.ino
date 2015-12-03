@@ -9,6 +9,7 @@
 #include "CrossWall.h"
 #include <Servo.h>
 #include "IR.h"
+#include "GrabToolState.h"
 #define COMPASS_DEBUG
 
 //#include "Compass.h"
@@ -26,51 +27,63 @@ Wheel BR(TIMER_3, CHANNEL_A, 34, 35); // PWM pin 5
 Wheel BL(TIMER_3, CHANNEL_B, 36, 37); // PWM pin 2
 */
 
+enum COMMANDS {
+	ACK,
+	GET_FIGURE,
+	GET_OIL_RIG
+};
+
 int i = 1;
 // the setup function runs once when you press reset or power the board
 void setup() {
-	// put your setup code here, to run once:
 	Serial.begin(9600);
-	delay(1000);
-	//robot.StateMachine->SetCurrentState(&MoveRight);
+	// put your setup code here, to run once:
+	//delay(1000);
+	robot.Init();
+	robot.StateMachine->SetCurrentState(&GrabTool);
+	//robot.Camera_Servo.write(115);
 	//robot.StateMachine->SetCurrentState(&RightTurn);
 	//Serial.println("Initializing");
 	//myCompass.init(true);
 	//robot.Move(FORWARD, 50);
 	//robot.Move(BACKWARD, 20);
 	//BR.Forward(50);
-	//robot.Move(FORWARD, 50);
-	TCCR1A = 0xA2;
-	TCCR1B = 0x1B;
-	TCCR3A = 0xA2;
-	TCCR3B = 0x1B;
+	//robot.Move(RIGHT, 50);
+	//TCCR1A = 0xA2;
+	//TCCR1B = 0x1B;
+	//TCCR3A = 0xA2;
+	//TCCR3B = 0x1B;
 	
 }
 
 // the loop function runs over and over again until power down or reset
 void loop() {
-	
+
 	//degrees = (int)myCompass.getOrientation();
 	//Serial.printf("Degrees %d \n", degrees);
 	//Serial.println(degrees);
 	//Serial.println(analogRead(9));
 	//Serial.println(robot.Front_Left.read());
-	//robot.StateMachine->Update();
-	//Serial.println(robot.compass.getOrientation());
-	robot.Move(RIGHT_TURN, 50);
-	//delay(4700);
-	//robot.Move(LEFT_TURN, 50);
-	//delay(4700);
-	//Serial.println(robot.Right.read());
-	//Serial.println(analogRead(8));
-	/*
-	robot.Move(FORWARD, 100);
-	delay(1000);
-	robot.Move(LEFT, 100);
-	delay(1000);
-	robot.Move(BACKWARD, 100);
-	delay(1000);
-	robot.Move(RIGHT, 100);
-	delay(1000);
-	*/
+	robot.StateMachine->Update();
+	//robot.Front_Right.read();
+	//robot.Stop();
+
+	//delay(500);
+	//if (Serial.available())
+	//{
+	//	int pos = Serial.parseInt();
+	//	robot.Camera_Servo.write(pos);
+	//}
+
+	//Serial.write(GET_OIL_RIG);
+	//while(!Serial.available())
+	//{ }
+	//uint8_t res = Serial.read();
+	//if (res)
+	//{
+	//	robot.Move(FORWARD, 20);
+	//	delay(500);
+	//	robot.Stop();
+	//}
+	//Serial.write(ACK);
 }

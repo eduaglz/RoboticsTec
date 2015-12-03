@@ -7,13 +7,14 @@
 #include "RightTurnState.h"
 
 void CrossWallState::Enter(Robot* robot) {
-	robot->Move(BACKWARD, 50);
+	robot->Move(FORWARD, 30);
 }
 
 void CrossWallState::Execute(Robot* robot) {
 	Serial.println("CrossWallState");
 	float rightDistance = robot->Front_Right.read();
 	float leftDistance = robot->Front_Left.read();
+
 	if (rightDistance < 7 || leftDistance < 7)
 	{
 		robot->Line++;
