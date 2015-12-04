@@ -49,7 +49,11 @@ enum Figure{
 enum COMMANDS{
 	ACK,
   	GET_FIGURE,
-  	GET_OIL_RIG
+  	GET_OIL_RIG,
+    GET_CIRCLE,
+    GET_RECTANGLE,
+    GET_TRIANGLE,
+    GET_POS
 };
 
 int a,b,c,d,e = 0;
@@ -189,63 +193,7 @@ bool getShapes(Mat &img, Mat &out, Features &result, int MinSize = 2000)
 	return found;
 }
 
-Figure detectShape(const Features &feature)
-{
-    input[0] = feature.F1;
-    input[1] = feature.F2;
-    result = fann_run(ann, input);
-    int max = result[0];
-    for(int i = 1; i < 5; i++)
-    {
-        if(result[i] > result[max])
-            max = i;
-    }
-    /*
-    switch(max)
-    {
-        case 0:
-            return NONE;
-            break;
-        case 1:
-        	return OIL_RIG;
-            break;
-        case 2:
-        	return TRIANGLE;
-            break;
-        case 3:
-        	return CIRCLE;
-            break;
-        case 4:
-            return RECTANGLE;
-            break;
-        default:
-        	return NONE;
-            break;
-    }
-    */
-    
-    switch(max)
-    {
-        case 0:
-            cout << "NONE detectado" << endl;
-            break;
-        case 1:
-            cout << "OIL_RIG detectado" << endl;
-            break;
-        case 2:
-            cout << "TRIANGLE detectado" << endl;
-            break;
-        case 3:
-            cout << "CIRCLE detectado" << endl;
-            break;
-        case 4:
-            cout << "RECTANGLE detectado" << endl;
-            break;
-        default:
-            break;
-    }
-    
-}
+
 
 void on_trackbar(int, void*){
 
@@ -284,24 +232,86 @@ void printToFannFile(ofstream &file, Features feature, Figure figure){
         file << endl;
 }
 
+Figure detectShape(const Features &feature)
+{
+    input[0] = feature.F1;
+    input[1] = feature.F2;
+    result = fann_run(ann, input);
+    int max = result[0];
+    for(int i = 0; i < 5; i++)
+        cout<< result[i]<< " ";
+    cout << endl;
+    for(int i = 1; i < 5; i++)
+    {
+        if(result[i] > result[max])
+            max = i;
+    }
+    /*
+    switch(max)
+    {
+        case 0:
+            return NONE;
+            break;
+        case 1:
+            return OIL_RIG;
+            break;
+        case 2:
+            return TRIANGLE;
+            break;
+        case 3:
+            return CIRCLE;
+            break;
+        case 4:
+            return RECTANGLE;
+            break;
+        default:
+            return NONE;
+            break;
+    }
+    */
+    
+    switch(max)
+    {
+        case 0:
+            cout << "NONE detectado" << endl;
+            break;
+        case 1:
+            cout << "OIL_RIG detectado" << endl;
+            break;
+        case 2:
+            cout << "TRIANGLE detectado" << endl;
+            break;
+        case 3:
+            cout << "CIRCLE detectado" << endl;
+            break;
+        case 4:
+            cout << "RECTANGLE detectado" << endl;
+            break;
+        default:
+            break;
+    }
+    
+}
+
 bool findFigure(Figure figure, Mat frame)
 {
-	Mat threshold(240,320,CV_8UC1,255);
-	inRange(frame,Scalar(hMin,sMin,vMin), Scalar(hMax,sMax,vMax), threshold);
-	dilate(threshold, threshold, Mat());
-	erode(threshold, threshold, Mat());
+    Mat threshold(240,320,CV_8UC1,255);
+    inRange(frame,Scalar(hMin,sMin,vMin), Scalar(hMax,sMax,vMax), threshold);
+    dilate(threshold, threshold, Mat());
+    erode(threshold, threshold, Mat());
     Mat out( 240, 320, CV_8UC3, Scalar(0,0,0));
     Features shape;
     bool found = getShapes(threshold, out, shape);
-//    if(gui){
+    if(gui){
         imshow("Threshold", threshold);
         imshow("Segment", out);   // Show image frames on created window
         imshow("Original", frame);
-//    }
-  //  out.refcount = 0;
-  //  out.release();
-  //  threshold.refcount = 0;
-  //  threshold.release();
+        cvWaitKey(10);
+    }
+    out.refcount = 0;
+    out.release();
+    threshold.refcount = 0;
+    threshold.release();
     return found && detectShape(shape) == figure;
 }
 
@@ -311,21 +321,22 @@ int main(int argc, char *argv[])
 		if(String(argv[1]) == "-x")
 		{
 			gui = true;
-            cout << "Iniciando con gui" << endl;
+            cout << "Starting process with GUI" << endl;
 		}
 	}
-/*
-	handle = serialOpen("/dev/ttyUSB0",9600);
+
+	handle = serialOpen("/dev/ttyAMA0",9600);
 	if(handle == -1){
 		cout << "Error opening SerialPort" << endl;
 		return 1;
 	}
 	int datac = 0;
-*/
+
 
 
     ann = fann_create_from_file("robotics.net");
     if(gui){
+        cout << "Creando pantallas" << endl;
 	    cvNamedWindow("Original", 1);    //Create window
 	    cvNamedWindow("Threshold", 1);
 	    cvNamedWindow("Segment", 1);
@@ -336,10 +347,11 @@ int main(int argc, char *argv[])
 	    createTrackbar("V Min", "Segment", &vMin, 255, on_trackbar);
 	    createTrackbar("V Max", "Segment", &vMax, 255, on_trackbar);
 
-		setMouseCallback("Original", mouseCallback);
+		//setMouseCallback("Original", mouseCallback);
 	}
 
 	VideoCapture camera(0);
+
     camera.set(CV_CAP_PROP_FRAME_WIDTH,320);
     camera.set(CV_CAP_PROP_FRAME_HEIGHT,240);
 
@@ -361,107 +373,74 @@ int main(int argc, char *argv[])
         char c;
         cin.get(c);
         camera >> frame;
-        imshow("Original", frame);
-            switch(c){
-                case 'o':
-                    cout<<"GET_OIL_RIG received"<< endl;
-                    if(findFigure(OIL_RIG, frame)){
-                        cout << "OIL_RIG found, responding Arduino" << endl;
-                        serialPutchar(handle,1);
-                    }else{
-                        cout << "OIL_RIG not found, responding Arduino" <<endl;
-                        serialPutchar(handle,0);
-                    }
-                    break;
-                case 'c':
-                    cout<<"GET_CIRCLE received"<< endl;
-                    if(findFigure(CIRCLE, frame)){
-                        cout << "CIRCLE found, responding Arduino" << endl;
-                        //serialPutchar(handle,1);
-                    }else{
-                        cout << "CIRCLE not found, responding Arduino" <<endl;
-                        //serialPutchar(handle,0);
-                    }
-                    break;
-                default:
-                    printf("Uknown command received: %d\n",c);
-                    break;
-            }
-    }*/
-
-/*
-	while(1){
-		datac = serialDataAvail(handle);
-		if(datac>0){
-			int c = serialGetchar(handle);
-			switch(c){
-				case ACK:
-					cout << "Acknowledge received" <<endl;
-					break;
-				case GET_OIL_RIG:
-					cout<<"GET_OIL_RIG received"<< endl;
-					camera >> frame;
-					if(findFigure(OIL_RIG, frame)){
-						cout << "OIL_RIG found, responding Arduino" << endl;
-						serialPutchar(handle,1);
-					}else{
-						cout << "OIL_RIG not found, responding Arduino" <<endl;
-						serialPutchar(handle,0);
-					}
-					break;
-				default:
-					printf("Uknown command received: %d\n",c);
-					break;
-			}
-		}
-	}
-
+        camera >> frame;
+        camera >> frame;
+        camera >> frame;
+        camera >> frame;
+        camera >> frame;
+        switch(c){
+            case 'o':
+                cout<<"GET_OIL_RIG received"<< endl;
+                if(findFigure(OIL_RIG, frame)){
+                    cout << "OIL_RIG found, responding Arduino" << endl;
+                    serialPutchar(handle,1);
+                }else{
+                    cout << "OIL_RIG not found, responding Arduino" <<endl;
+                    serialPutchar(handle,0);
+                }
+                break;
+            case 'c':
+                cout<<"GET_CIRCLE received"<< endl;
+                if(findFigure(CIRCLE, frame)){
+                    cout << "CIRCLE found, responding Arduino" << endl;
+                    //serialPutchar(handle,1);
+                }else{
+                    cout << "CIRCLE not found, responding Arduino" <<endl;
+                    //serialPutchar(handle,0);
+                }
+                break;
+            default:
+                printf("Uknown command received: %d\n",c);
+                break;
+        }
+    }
 */
-    /*
+    if(argc > 2 && String(argv[2]) == "-l")
     while(1){ 
-    	// Create infinte loop for live streaming
-		Mat threshold(240,320,CV_8UC1,255);
-		camera >> frame;
-		cvtColor(frame, frame, CV_RGB2HSV);
-		inRange(frame,Scalar(hMin,sMin,vMin), Scalar(hMax,sMax,vMax), threshold);
-		dilate(threshold, threshold, Mat());
-		erode(threshold, threshold, Mat());
+        // Create infinte loop for live streaming
+        Mat threshold(240,320,CV_8UC1,255);
+        camera >> frame;
+        cvtColor(frame, frame, CV_RGB2HSV);
+        inRange(frame,Scalar(hMin,sMin,vMin), Scalar(hMax,sMax,vMax), threshold);
+        dilate(threshold, threshold, Mat());
+        erode(threshold, threshold, Mat());
         Mat out( 240, 320, CV_8UC3, Scalar(0,0,0));
         bool found = getShapes(threshold, out, shape);
-        if(found)
-        {
-            oilRigFound |= detectShape(shape) == OIL_RIG;
-        }
-        if(gui){
-			imshow("Threshold", threshold);
-			imshow("Segment", out);   // Show image frames on created window
-	    	imshow("Original", frame);
-        }
+        oilRigFound = findFigure(OIL_RIG, frame);
+        key = cvWaitKey(10);     // Capture Keyboard stroke
 
-		key = cvWaitKey(10);     // Capture Keyboard stroke
+        switch(char(key)){
+            case 'i':
+                if(firstFrame){
+                    oilRigInFirstFrame = oilRigFound;
+                    firstFrame = false;
+                }else{
+                    oilRigInSecondFrame = oilRigFound;
+                    firstFrame = true;
 
-		switch(char(key)){
-			case 'i':
-				if(firstFrame){
-					oilRigInFirstFrame = oilRigFound;
-					firstFrame = false;
-				}else{
-					oilRigInSecondFrame = oilRigFound;
-					firstFrame = true;
+                    if(oilRigInFirstFrame && !oilRigInSecondFrame)
+                    {
+                        cout << "OilRig 1 prendido" << endl;
+                    }else if(oilRigInFirstFrame && oilRigInSecondFrame){
+                        cout << "OilRig 2 prendido" << endl;
+                    }else if(!oilRigInFirstFrame && oilRigInSecondFrame){
+                        cout << "OilRig 3 prendido" << endl;
+                    }else{
+                        cout << "Error de lectura" << endl;
+                    }
+                }
 
-					if(oilRigInFirstFrame && !oilRigInSecondFrame)
-					{
-						cout << "OilRig 1 prendido" << endl;
-					}else if(oilRigInFirstFrame && oilRigInSecondFrame){
-						cout << "OilRig 2 prendido" << endl;
-					}else if(!oilRigInFirstFrame && oilRigInSecondFrame){
-						cout << "OilRig 3 prendido" << endl;
-					}else{
-						cout << "Error de lectura" << endl;
-					}
-				}
-
-				break;
+                break;
             case 'q':
                 printf("M00: %f F1: %f F2: %f Cx: %f Cy: %f\n",firstShape.M00, firstShape.F1, firstShape.F2, firstShape.Cx, firstShape.Cy);
                 break;
@@ -492,9 +471,9 @@ int main(int argc, char *argv[])
                 break;
                 case 'e':
                     fannFile.close();
-			default:
-				break;
-		}
+            default:
+                break;
+        }
 
         if (char(key) == 27){
             break;      // If you hit ESC key loop will break.
@@ -503,6 +482,98 @@ int main(int argc, char *argv[])
         out.refcount = 0;
         out.release();
     }
-*/
+
+	while(1){
+		datac = serialDataAvail(handle);
+		if(datac>0){
+            camera >> frame;
+            camera >> frame;
+            camera >> frame;
+            camera >> frame;
+            camera >> frame;
+            camera >> frame;
+			int c = serialGetchar(handle);
+            Features ft;
+            Mat out( 240, 320, CV_8UC3, Scalar(0,0,0));
+            Mat threshold(240,320,CV_8UC1,255);
+			switch(c){
+				case ACK:
+					cout << "Acknowledge received" <<endl;
+					break;
+				case GET_OIL_RIG:
+					cout<<"GET_OIL_RIG received"<< endl;
+					if(findFigure(OIL_RIG, frame)){
+						cout << "OIL_RIG found" << endl;
+						serialPutchar(handle,1);
+					}else{
+						cout << "OIL_RIG not found" <<endl;
+						serialPutchar(handle,0);
+					}
+					break;
+                case GET_CIRCLE:
+                    cout<<"GET_CIRCLE received"<< endl;
+                    if(findFigure(CIRCLE, frame)){
+                        cout << "CIRCLE found" << endl;
+                        serialPutchar(handle,1);
+                    }else{
+                        cout << "CIRCLE not found" <<endl;
+                        serialPutchar(handle,0);
+                    }
+                    break;
+
+                case GET_RECTANGLE:
+                    cout<<"GET_RECTANGLE received"<< endl;
+                    if(findFigure(RECTANGLE, frame)){
+                        cout << "RECTANGLE found" << endl;
+                        serialPutchar(handle,1);
+                    }else{
+                        cout << "RECTANGLE not found" <<endl;
+                        serialPutchar(handle,0);
+                    }
+                    break;
+
+                case GET_TRIANGLE:
+                    cout<<"GET_TRIANGLE received"<< endl;
+                    if(findFigure(TRIANGLE, frame)){
+                        cout << "TRIANGLE found" << endl;
+                        serialPutchar(handle,1);
+                    }else{
+                        cout << "TRIANGLE not found" <<endl;
+                        serialPutchar(handle,0);
+                    }
+                    break;
+                case GET_POS:
+                    cout << "GET_POS received" << endl;
+                    
+                    inRange(frame,Scalar(hMin,sMin,vMin), Scalar(hMax,sMax,vMax), threshold);
+                    dilate(threshold, threshold, Mat());
+                    erode(threshold, threshold, Mat());
+                    getShapes(threshold, out, ft);
+                    if(gui){
+                        circle(out,Point(ft.Cx,ft.Cy),5,Scalar(0, 0, 255),-1);
+                        imshow("Threshold", threshold);
+                        imshow("Segment", out);   // Show image frames on created window
+                        imshow("Original", frame);
+                        cvWaitKey(10);
+                    }
+                    printf("%f %f %f %f %f\n",ft.M00, ft.M10, ft.M01, ft.Cx, ft.Cy );
+                    break;
+
+				default:
+					do{
+						printf("%c", c);
+						datac--;
+						c = serialGetchar(handle);
+					}while(datac>0);
+					break;
+			}
+            cout << "----------------------------------------" <<endl;
+		}
+	}
+
+
+    
+
+
     return 0;
 }
