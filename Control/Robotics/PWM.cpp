@@ -195,8 +195,6 @@ void PWM::TimerSetup()
 	*ControlRegA &= 0xFE;
 	*ControlRegB |= _BV(WGM3) | _BV(WGM2) | prescaleMode;
 	*DDR |= _BV(OutBit);
-	Serial.println("test");
-	Serial.println(*ControlRegA, HEX);
 	interrupts();
 }
 

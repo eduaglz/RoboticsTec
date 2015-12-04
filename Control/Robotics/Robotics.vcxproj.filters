@@ -66,6 +66,12 @@
     <ClInclude Include="MoveLeftState.h">
       <Filter>Header Files\States</Filter>
     </ClInclude>
+    <ClInclude Include="GrabToolState.h">
+      <Filter>Header Files\States</Filter>
+    </ClInclude>
+    <ClInclude Include="Comm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="PWM.cpp">
@@ -99,6 +105,9 @@
       <Filter>Source Files\States</Filter>
     </ClCompile>
     <ClCompile Include="RightTurnState.cpp">
+      <Filter>Source Files\States</Filter>
+    </ClCompile>
+    <ClCompile Include="GrabToolState.cpp">
       <Filter>Source Files\States</Filter>
     </ClCompile>
   </ItemGroup>

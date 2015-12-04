@@ -7,7 +7,7 @@
 #include "RightTurnState.h"
 
 void CrossWallState::Enter(Robot* robot) {
-	robot->Move(FORWARD, 30);
+	robot->Move(FORWARD, 80);
 }
 
 void CrossWallState::Execute(Robot* robot) {
@@ -15,15 +15,15 @@ void CrossWallState::Execute(Robot* robot) {
 	float rightDistance = robot->Front_Right.read();
 	float leftDistance = robot->Front_Left.read();
 
-	if (rightDistance < 7 || leftDistance < 7)
+	if (rightDistance < 10 || leftDistance < 10)
 	{
-		robot->Line++;
-		if (robot->Line == 4)
-		{
-			robot->Line = 0;
-			robot->StateMachine->ChangeState(&RightTurn);
-		}
-		else
+		//robot->Line++;
+		//if (robot->Line == 4)
+		//{
+		//	robot->Line = 0;
+		//	robot->StateMachine->ChangeState(&RightTurn);
+		//}
+		//else
 			robot->StateMachine->ChangeState(&MoveRight);
 	}
 }

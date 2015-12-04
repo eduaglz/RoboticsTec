@@ -57,10 +57,6 @@ float Compass::getOrientation()
 	magY = (y / _hmc5883_Gauss_LSB_XY * SENSORS_GAUSS_TO_MICROTESLA) - Y_OFFSET;
 	magZ = z / _hmc5883_Gauss_LSB_Z * SENSORS_GAUSS_TO_MICROTESLA;
 
-	Serial.print(magX);
-	Serial.print(",");
-	Serial.println(magY);
-
 	float heading = atan2(magY, magX);
 	heading += MAGNETIC_DECLINATION;
 	

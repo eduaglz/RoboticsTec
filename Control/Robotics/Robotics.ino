@@ -4,6 +4,7 @@
  Author:	edua_
 */
 #include "RightTurnState.h"
+#include "SearchOilRig.h"
 #include "MoveLeftState.h"
 #include "MoveRightState.h"
 #include "CrossWall.h"
@@ -40,8 +41,9 @@ void setup() {
 	// put your setup code here, to run once:
 	//delay(1000);
 	robot.Init();
-	robot.StateMachine->SetCurrentState(&GrabTool);
-	//robot.Camera_Servo.write(115);
+	robot.StateMachine->ChangeState(&SearchOilRigInstance);
+	robot.Gripper_Lifter.write(122);
+	robot.Camera_Servo.write(115);
 	//robot.StateMachine->SetCurrentState(&RightTurn);
 	//Serial.println("Initializing");
 	//myCompass.init(true);
@@ -49,32 +51,76 @@ void setup() {
 	//robot.Move(BACKWARD, 20);
 	//BR.Forward(50);
 	//robot.Move(RIGHT, 50);
-	//TCCR1A = 0xA2;
-	//TCCR1B = 0x1B;
-	//TCCR3A = 0xA2;
-	//TCCR3B = 0x1B;
-	
+	TCCR1A = 0xA2;
+	TCCR1B = 0x1B;
+	TCCR3A = 0xA2;
+	TCCR3B = 0x1B;
+
 }
 
 // the loop function runs over and over again until power down or reset
 void loop() {
-	//robot.front.read();
-	//robot.Gripper_Left.write(90);
+	//robot.Move(FORWARD,50);
+	//delay(1000);
+	//robot.Move(BACKWARD,50);
+	//delay(1000);
+	//robot.Move(RIGHT_TURN,50);
+	//delay(1000);
+	//robot.Move(LEFT_TURN,50);
+	//delay(1000);
+	//robot.Move(RIGHT,50);
+	//delay(1000);
+	//robot.Move(LEFT,50);
+	//delay(1000);
+	//robot.Gripper_Lifter.write(122);
+	//delay(1000);
 
 	//degrees = (int)myCompass.getOrientation();
 	//Serial.printf("Degrees %d \n", degrees);
 	//Serial.println(degrees);
 	//Serial.println(analogRead(9));
 	//Serial.println(robot.Front_Left.read());
-	//robot.StateMachine->Update();
+	/*
+	float left, right;
+	left = robot.Left.read();
+	right = robot.Right.read();
+	Serial.print(left);
+	Serial.print(" ");
+	Serial.println(right);
+	*/
+	robot.StateMachine->Update();
+	//robot.FL.Forward(100);
+	//delay(1000);
+	//robot.FL.Backward(100);
+	//delay(1000);
+	//robot.FL.Stop();
+	//
+	//robot.FR.Forward(100);
+	//delay(1000);
+	//robot.FR.Backward(100);
+	//delay(1000);
+	//robot.FR.Stop();
+	//
+	//robot.BL.Forward(100);
+	//delay(1000);
+	//robot.BL.Backward(100);
+	//delay(1000);
+	//robot.BL.Stop();
+	//robot.BR.Forward(100);
+	//delay(1000);
+	//robot.BR.Backward(100);
+	//delay(1000);
+	//robot.BR.Stop();
+	//delay(1000);
 	//robot.Front_Right.read();
 	//robot.Stop();
 
-	delay(500);
-	if (Serial.available())
-	{
-		Serial.println(robot.Front_Left.read());
-	}
+	//delay(500);
+	//if (Serial.available())
+	//{
+	//	int pos = Serial.parseInt();
+	//	robot.Camera_Servo.write(pos);
+	//}
 
 	//Serial.write(GET_OIL_RIG);
 	//while(!Serial.available())

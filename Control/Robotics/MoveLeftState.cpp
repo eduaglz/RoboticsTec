@@ -8,7 +8,7 @@
 
 void MoveLeftState::Enter(Robot* robot)
 {
-	robot->Move(LEFT, 30);
+	robot->Move(LEFT,80);
 }
 
 void MoveLeftState::Execute(Robot* robot)
@@ -19,7 +19,7 @@ void MoveLeftState::Execute(Robot* robot)
 	float leftSide = robot->Left.read();
 	if (rightDistance > 10 && leftDistance > 10)
 	{
-		delay(300);
+		delay(250);
 		robot->StateMachine->ChangeState(&CrossWall);
 	}
 	if (leftSide > 12)

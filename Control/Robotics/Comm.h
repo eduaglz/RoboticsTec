@@ -1,0 +1,10 @@
+#pragma once
+enum COMMANDS {
+	ACK,
+	GET_FIGURE,
+	GET_OIL_RIG,
+	GET_CIRCLE,
+	GET_RECTANGLE,
+	GET_TRIANGLE,
+	GET_POS
+};

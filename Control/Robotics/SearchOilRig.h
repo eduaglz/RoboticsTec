@@ -17,19 +17,11 @@ class SearchOilRig : public State
 public:
 protected:
 private:
-	int pos = 0;
 	//functions
 public:
 	virtual void Enter(Robot* robot);
 	virtual void Execute(Robot* robot);
 	virtual void Exit(Robot* robot);
-	~SearchOilRig();
-	SearchOilRig() {};
-protected:
-private:
-
-	SearchOilRig(const SearchOilRig &c);
-	SearchOilRig& operator=(const SearchOilRig &c);
 
 }; //SearchOilRig
 

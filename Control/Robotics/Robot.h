@@ -36,7 +36,8 @@ enum Direction {
 	RIGHT,
 	LEFT,
 	RIGHT_TURN,
-	LEFT_TURN
+	LEFT_TURN,
+	RIGHT_WHEELS
 };
 
 class Robot
@@ -50,6 +51,8 @@ public:
 	IR	Front;
 	IR	Front_Right;
 	IR	Front_Left;
+
+	Wheel FL, FR, BL, BR;
 
 	//Compass compass;
 

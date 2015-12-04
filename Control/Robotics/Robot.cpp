@@ -12,15 +12,15 @@
 
 // Wheels used by the robot
 
-Wheel FR(TIMER_1, CHANNEL_A, 30, 31); // PWM pin 11
-Wheel FL(TIMER_1, CHANNEL_B, 32, 33); // PWM pin 12
-Wheel BR(TIMER_3, CHANNEL_A, 34, 35); // PWM pin 5
-Wheel BL(TIMER_3, CHANNEL_B, 36, 37); // PWM pin 2
+//Wheel ; // PWM pin 11
+//Wheel ; // PWM pin 12
+//Wheel; // PWM pin 5
+//Wheel; // PWM pin 2
 
 // Sensors
 
 // default constructor
-Robot::Robot()
+Robot::Robot():FR(TIMER_1, CHANNEL_A, 30, 31), FL(TIMER_1, CHANNEL_B, 32, 33), BR(TIMER_3, CHANNEL_A, 34, 35), BL(TIMER_3, CHANNEL_B, 36, 37)
 {	Line = 0;
 
 	StateMachine = new FSM(this);
@@ -66,26 +66,27 @@ void Robot::Move(Direction dir, int speed)
 	case LEFT:
 		FR.Forward(speed);
 		FL.Backward(speed);
-		BR.Forward(speed);
-		BL.Backward(speed);
+		BR.Backward(speed);
+		BL.Forward(speed);
 		break;
 	case RIGHT:
 		FR.Backward(speed);
 		FL.Forward(speed);
-		BR.Backward(speed);
-		BL.Forward(speed);
+		BR.Forward(speed);
+		BL.Backward(speed);
 		break;
 	case RIGHT_TURN:
 		FR.Backward(speed);
 		FL.Forward(speed);
-		BR.Forward(speed);
-		BL.Backward(speed);
+		BR.Backward(speed);
+		BL.Forward(speed);
 		break;
+
 	case LEFT_TURN:
 		FR.Forward(speed);
 		FL.Backward(speed);
-		BR.Backward(speed);
-		BL.Forward(speed);
+		BR.Forward(speed);
+		BL.Backward(speed);
 		break;
 	}
 }
