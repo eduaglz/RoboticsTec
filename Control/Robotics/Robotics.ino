@@ -58,22 +58,23 @@ void setup() {
 
 // the loop function runs over and over again until power down or reset
 void loop() {
+	//robot.front.read();
+	//robot.Gripper_Left.write(90);
 
 	//degrees = (int)myCompass.getOrientation();
 	//Serial.printf("Degrees %d \n", degrees);
 	//Serial.println(degrees);
 	//Serial.println(analogRead(9));
 	//Serial.println(robot.Front_Left.read());
-	robot.StateMachine->Update();
+	//robot.StateMachine->Update();
 	//robot.Front_Right.read();
 	//robot.Stop();
 
-	//delay(500);
-	//if (Serial.available())
-	//{
-	//	int pos = Serial.parseInt();
-	//	robot.Camera_Servo.write(pos);
-	//}
+	delay(500);
+	if (Serial.available())
+	{
+		Serial.println(robot.Front_Left.read());
+	}
 
 	//Serial.write(GET_OIL_RIG);
 	//while(!Serial.available())
