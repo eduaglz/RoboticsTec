@@ -200,6 +200,7 @@ Figure detectShape(const Features &feature)
         if(result[i] > result[max])
             max = i;
     }
+    /*
     switch(max)
     {
         case 0:
@@ -221,7 +222,8 @@ Figure detectShape(const Features &feature)
         	return NONE;
             break;
     }
-    /*
+    */
+    
     switch(max)
     {
         case 0:
@@ -242,7 +244,7 @@ Figure detectShape(const Features &feature)
         default:
             break;
     }
-    */
+    
 }
 
 void on_trackbar(int, void*){
@@ -291,10 +293,15 @@ bool findFigure(Figure figure, Mat frame)
     Mat out( 240, 320, CV_8UC3, Scalar(0,0,0));
     Features shape;
     bool found = getShapes(threshold, out, shape);
-    out.refcount = 0;
-    out.release();
-    threshold.refcount = 0;
-    threshold.release();
+//    if(gui){
+        imshow("Threshold", threshold);
+        imshow("Segment", out);   // Show image frames on created window
+        imshow("Original", frame);
+//    }
+  //  out.refcount = 0;
+  //  out.release();
+  //  threshold.refcount = 0;
+  //  threshold.release();
     return found && detectShape(shape) == figure;
 }
 
@@ -304,16 +311,17 @@ int main(int argc, char *argv[])
 		if(String(argv[1]) == "-x")
 		{
 			gui = true;
+            cout << "Iniciando con gui" << endl;
 		}
 	}
-
+/*
 	handle = serialOpen("/dev/ttyUSB0",9600);
 	if(handle == -1){
 		cout << "Error opening SerialPort" << endl;
 		return 1;
 	}
 	int datac = 0;
-
+*/
 
 
     ann = fann_create_from_file("robotics.net");
@@ -347,8 +355,41 @@ int main(int argc, char *argv[])
 
     ofstream fannFile;
     initFannFIle(fannFile);
+/*
+    while(1){
+        cout << "Input Command" <<endl;
+        char c;
+        cin.get(c);
+        camera >> frame;
+        imshow("Original", frame);
+            switch(c){
+                case 'o':
+                    cout<<"GET_OIL_RIG received"<< endl;
+                    if(findFigure(OIL_RIG, frame)){
+                        cout << "OIL_RIG found, responding Arduino" << endl;
+                        serialPutchar(handle,1);
+                    }else{
+                        cout << "OIL_RIG not found, responding Arduino" <<endl;
+                        serialPutchar(handle,0);
+                    }
+                    break;
+                case 'c':
+                    cout<<"GET_CIRCLE received"<< endl;
+                    if(findFigure(CIRCLE, frame)){
+                        cout << "CIRCLE found, responding Arduino" << endl;
+                        //serialPutchar(handle,1);
+                    }else{
+                        cout << "CIRCLE not found, responding Arduino" <<endl;
+                        //serialPutchar(handle,0);
+                    }
+                    break;
+                default:
+                    printf("Uknown command received: %d\n",c);
+                    break;
+            }
+    }*/
 
-
+/*
 	while(1){
 		datac = serialDataAvail(handle);
 		if(datac>0){
@@ -375,7 +416,8 @@ int main(int argc, char *argv[])
 		}
 	}
 
-
+*/
+    /*
     while(1){ 
     	// Create infinte loop for live streaming
 		Mat threshold(240,320,CV_8UC1,255);
@@ -448,8 +490,8 @@ int main(int argc, char *argv[])
                 e++;
                 printf("%d CIRCLE recorded\n",e);
                 break;
-            case 'e':
-                fannFile.close();
+                case 'e':
+                    fannFile.close();
 			default:
 				break;
 		}
@@ -461,6 +503,6 @@ int main(int argc, char *argv[])
         out.refcount = 0;
         out.release();
     }
-
+*/
     return 0;
 }
